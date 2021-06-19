@@ -1,0 +1,9 @@
+*.debug
+*.exe
+*.bat
+*.a
+*.i
+*.i2
+commands.html
+.bmx
+dev
