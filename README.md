@@ -8,7 +8,7 @@ MagnaLib helps you quickly get started with developing your next [BlitzMax NG](h
 * Free and open source
 
 ## Modules
-* [magna.config](/config.mod) - Load Magna configuration files using reflection and JConv.
+* [magna.config](/config.mod) - Load Magna configuration files using reflection and JConv
 
 ## Installation
 Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magna.mod/` folder.
