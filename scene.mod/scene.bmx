@@ -1,7 +1,7 @@
 SuperStrict
 
 ' Dependencies
-?threaded
+?Threaded
 	Import brl.threads
 ?
 Import brl.collections
@@ -9,25 +9,25 @@ Import brl.collections
 rem
 bbdoc: Game
 about:
-Magna state manager
+Magna scene manager
 endrem
-Module magna.state
+Module magna.scene
 
 ModuleInfo "Author: Rob C."
 ModuleInfo "License: MIT"
 ModuleInfo "Copyright: 2021 Rob C."
 
-?threaded
+?Threaded
 	Private
 		Function ThreadedOnUpdate:Object( data:Object )
 			
-			Local owner:TManagerState = TManagerState( data )
+			Local owner:TSceneManager = TSceneManager( data )
 			
 			While Not owner._wantsToStop
-				owner._currentUpdateTime = owner.currentState.OnTime()
-				If owner.currentState And TryLockMutex( owner._updateMutex ) Then
+				owner._currentUpdateTime = owner.currentScene.OnTime()
+				If owner.currentScene And TryLockMutex( owner._updateMutex ) Then
 					UnlockMutex( owner._updateMutex )
-					owner.currentState.OnUpdate( (owner._currentUpdateTime - owner._lastUpdateTime) * owner.deltaMulti )
+					owner.currentScene.OnUpdate( (owner._currentUpdateTime - owner._lastUpdateTime) * owner.deltaMulti )
 					owner._lastUpdateTime = owner._currentUpdateTime
 				EndIf
 			Wend
@@ -35,14 +35,14 @@ ModuleInfo "Copyright: 2021 Rob C."
 	Public
 ?
 
-Type TManagerState
+Type TSceneManager
 	
-	Field states:TStack<TStateBase> = New TStack<TStateBase>
-	Field currentState:TStateBase
+	Field scenes:TStack<TSceneBase> = New TStack<TSceneBase>
+	Field currentScene:TSceneBase
 	Field deltaMulti:Double = 100.0
 	Field threadedUpdate:Int = True
 	
-	?threaded
+	?Threaded
 		Field _updateThread:TThread
 		Field _updateMutex:TMutex
 	?
@@ -59,52 +59,52 @@ Type TManagerState
 	
 	Method OnUpdate()
 		
-		?threaded
+		?Threaded
 			If Self.threadedUpdate Then
 				' Use crappy threading for updates
 				' Halts on rendering, but doesn't halt rendering
 				If Not Self._updateThread Then ..
 					Self._updateThread = CreateThread( ThreadedOnUpdate, Self )
-			Else If Self.currentState Then
+			Else If Self.currentScene Then
 		?
 			' Do a "normal" update
-			Self._currentUpdateTime = Self.currentState.OnTime()
-			If Self.currentState Then
-				Self.currentState.OnUpdate( (Self._currentUpdateTime - self._lastUpdateTime) * Self.deltaMulti )
+			Self._currentUpdateTime = Self.currentScene.OnTime()
+			If Self.currentScene Then
+				Self.currentScene.OnUpdate( (Self._currentUpdateTime - self._lastUpdateTime) * Self.deltaMulti )
 			EndIf
 			Self._lastUpdateTime = Self._currentUpdateTime
-		?threaded
+		?Threaded
 			EndIf
 		?
 	EndMethod
 	
 	Method OnRender()
 		
-		Self._currentRenderTime = Self.currentState.OnTime()
-		If Self.currentState Then
-			?threaded
+		Self._currentRenderTime = Self.currentScene.OnTime()
+		If Self.currentScene Then
+			?Threaded
 				LockMutex( Self._updateMutex )
 			?
-			Self.currentState.OnRender( (Self._currentRenderTime - self._lastRenderTime) * Self.deltaMulti )
-			?threaded
+			Self.currentScene.OnRender( (Self._currentRenderTime - self._lastRenderTime) * Self.deltaMulti )
+			?Threaded
 				UnlockMutex( Self._updateMutex )
 			?
 		EndIf
 		Self._lastRenderTime = Self._currentRenderTime
 	EndMethod
 	
-	Method Register( name:String, state:TStateBase )
+	Method Register( name:String, Scene:TSceneBase )
 		
-		state.Name = name
+		Scene.Name = name
 		
-		Self.States.Push( state )
+		Self.Scenes.Push( Scene )
 		
-		If Not Self.CurrentState Self.CurrentState = state
+		If Not Self.CurrentScene Self.CurrentScene = Scene
 	EndMethod
 	
 	Method Close()
 		Self._wantsToStop = True
-		?threaded
+		?Threaded
 			If Self._updateThread Then
 				If Self._updateThread.Running() Then WaitThread( Self._updateThread )
 				Self._updateThread = null
@@ -113,9 +113,10 @@ Type TManagerState
 	EndMethod
 EndType
 
-Type TStateBase Abstract
+Type TSceneBase Abstract
 	
 	Field Name:String = "Unknown"
+	Field ZOrder:Int = 0
 	
 	Method OnTime:Double()				Abstract
 	Method OnUpdate( delta:Double )	Abstract
