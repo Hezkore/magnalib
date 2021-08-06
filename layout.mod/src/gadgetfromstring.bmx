@@ -1,6 +1,9 @@
 Import "tlayoutgadget.bmx"
 
-Function GadgetFromString:Object[]( str:String )
+rem
+bbdoc: Create a gadget layout from a script
+endrem
+Function GadgetFromString:TLayoutGadget[]( str:String )
 	Local ch:String
 	Local token:String
 	
@@ -89,5 +92,5 @@ Function GadgetFromString:Object[]( str:String )
 		EndIf
 	Next
 	
-	Return gadgets.ToArray()
+	Return TLayoutGadget[]( gadgets.ToArray() )
 EndFunction

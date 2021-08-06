@@ -1,3 +1,4 @@
+Import brl.standardio
 Import brl.reflection
 
 Import "tlayoutgadget.header.bmx"
@@ -24,7 +25,7 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 				If Not Self._layoutStyle Then ..
 					Self.SetLayoutStyle( TLayoutGadget.FALLBACK_STYLE )
 				' Update style
-				Self._layoutStyle.RecalculateChildren()
+				Self._layoutStyle.RecalculateChildren( Self.Children )
 				For Local g:TLayoutGadget = EachIn Self
 					g.SetNeedsRefresh()
 				Next
@@ -92,7 +93,7 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 	EndMethod
 	
 	Rem
-	bbdoc: The last added child gadget
+	bbdoc: Add a single child gadget
 	EndRem
 	Method AddGadget( gadget:Object )
 		If Not gadget Return
@@ -102,6 +103,9 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		Self._recalculateChildrenIfNeeded()
 	EndMethod
 	
+	Rem
+	bbdoc: Add multiple child gadgets
+	EndRem
 	Method AddGadget( gadgets:Object[] )
 		If Not gadgets Or gadgets.Length <= 0 Return
 		Self.SetNeedsRefresh()
@@ -129,16 +133,16 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 	EndMethod
 	
 	Rem
-	bbdoc: Refresh gadget and all of it children
+	bbdoc: Refresh the current layout
 	EndRem
-	Method Refresh()
+	Method RefreshLayout()
 		Self.SetNeedsRefresh()
 		Self._recalculateChildrenIfNeeded()
 	EndMethod
 	
 	Rem
 	bbdoc: Intercept any property change
-	about: The proprety does not need to exist.
+	about: The proprety does not need to exist
 	Remember to call Self.NeedsRefresh() to flag as dirty if changes are made
 	returns: True halts the property change while False allows any potential property change
 	EndRem
@@ -147,6 +151,14 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		Select key
 			Case "layout"
 				Self.SetLayoutStyle( String( value ).ToLower().Trim() )
+				Return True
+				
+			Case "pos"
+				Local xy:String[] = String( value ).ToLower().Split( " " )
+				If xy.Length > 0 Then
+					If xy.Length = 1 Then xy = xy[..2]; xy[1] = xy[0]
+					Self.SetPosition( Int( xy[0].Trim() ), Int( xy[1].Trim() ) )
+				EndIf
 				Return True
 				
 			Case "size"

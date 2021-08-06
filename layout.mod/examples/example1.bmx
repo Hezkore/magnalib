@@ -5,17 +5,27 @@ Import brl.standardio
 Import brl.max2d
 Import brl.glmax2d
 
-Local myLayout:TLayoutGadget = TLayoutGadget( GadgetFromString( """
-#window (size = 320 240) {
+Local myLayout:TLayoutGadget[] = GadgetFromString( """
+panel#window (size = 320 240) {
 	button#b1 (text=~qButt1~q, grow=1, size=32 24)
 	button#b2 (text=~qButton 2~q, size=68 24)
-	(grow=1) {
+	(grow=1, layout=stackVertical) {
 		button#b3 (text=B3, size=24)
 	}
 	button#b4 (text=~qButton 4~q, size=68 24)
 	button#b5 (text=~qButton 5~q, size=68 24)
 }
-""" )[0] )
+
+#anotherWindow (pos=350 16, size=280 200) {
+	button#b1 (text=~qButt1~q, grow=1, size=32 24)
+	button#b2 (text=~qButton 2~q, size=68 24)
+	(grow=1, layout=stackVertical) {
+		button#b3 (text=B3, size=24)
+	}
+	button#b4 (text=~qButton 4~q, size=68 24)
+	button#b5 (text=~qButton 5~q, size=68 24)
+}
+""" )
 
 'myLayout.AddGadget( GadgetFromString( "b1#button (text=~qButton 1~q, size=64)" ) )
 'myLayout.AddGadget( New TLayoutButton( ["id=b1", "text=Button 1", "size=64"] ) )
@@ -43,25 +53,26 @@ myLayout.LastGadget.AddGadget( New TLayoutButton( "apply", 64, -1, "Apply" ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "abort", 64, -1, "Abort" ) )
 endrem
 
-Print( "myLayout has the following properties: " )
-Print( ", ".Join( myLayout.GetProperties() ) )
+'Print( "myLayout has the following properties: " )
+'Print( ", ".Join( myLayout.GetProperties() ) )
 
 Graphics( 640, 480 )
 While Not AppTerminate() And Not KeyDown(KEY_ESCAPE)
 	Cls()
 	
-	myLayout.SetPosition( ..
-		64 + Sin( MilliSecs() * 0.075 ) * 8,..
-		128 + Cos( MilliSecs() * 0.075 ) * 8 )
+	' Resize with left mouse button
+	If MouseDown( 1 ) Then
+		myLayout[0].SetSize( ..
+			MouseX() - myLayout[0].GetPosition().x, ..
+			MouseY() - myLayout[0].GetPosition().y )
+	EndIf
 	
-	myLayout.SetSize( ..
-		320 + Sin( MilliSecs() * 0.09 ) * 80,..
-		240 + Cos( MilliSecs() * 0.09 ) * 80 )
+	' Move with right mouse button
+	If MouseDown( 2 ) Then
+		myLayout[0].SetPosition( MouseX(), MouseY() )
+	EndIf
 	
-	' Draw the base container the same way as any gadget
-	DrawGenericGadgetItem( myLayout )
-	
-	' Draw base container children
+	' Draw the base containers and its children
 	For Local g:TLayoutGadget = EachIn myLayout
 		DrawGenericGadgetItem( g )
 	Next
@@ -74,11 +85,16 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	
 	' Area rectangle
 	SetAlpha( 0.15 )
-	If g.Parent Then SetColor( 233, 179, 255 ) Else SetColor( 194, 218, 255 )
+	Select g.GetType()
+		Case "Panel"
+			SetColor( 166, 204, 255 )
+		Default
+			SetColor( 239, 201, 253 )
+	EndSelect
 	DrawRect( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y )
 	
 	' Outline
-	SetAlpha( 0.5 )
+	SetAlpha( 0.35 )
 	DrawLine( g.GetPosition.x, g.GetPosition.y, g.GetPosition.x + g.GetSize.x, g.GetPosition.y, False )
 	DrawLine( g.GetPosition.x + g.GetSize.x, g.GetPosition.y, g.GetPosition.x + g.GetSize.x, g.GetPosition.y + g.GetSize.y, False )
 	DrawLine( g.GetPosition.x + g.GetSize.x, g.GetPosition.y + g.GetSize.y, g.GetPosition.x, g.GetPosition.y + g.GetSize.y, False )
@@ -86,6 +102,8 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	
 	' Text
 	If g.GetText() Then
+		SetAlpha( 1 )
+		SetColor( 255, 255, 255 )
 		DrawText( g.GetText(), ..
 			g.GetPosition.x + g.GetSize.x / 2 - TextWidth( g.GetText() ) / 2,..
 			g.GetPosition.y + g.GetSize.y / 2 - TextHeight( g.GetText() ) / 2 )

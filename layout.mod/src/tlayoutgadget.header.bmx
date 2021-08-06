@@ -1,3 +1,4 @@
+Import brl.reflection
 Import brl.linkedlist
 Import brl.vector
 
@@ -19,6 +20,7 @@ Type TLayoutGadget_Header Abstract
 		Field _minSize:SVec2I
 		Field _position:SVec2I
 		Field _enumIndex:UInt	' Child enumerator index
+		Field _cachedType:String
 		
 		' Default gadget properties
 		Field Text:String				{gadgetProperty}
@@ -47,6 +49,17 @@ Type TLayoutGadget_Header Abstract
 	
 	Method _recalculateChildrenIfNeeded() Abstract
 	Method IterceptPropertyChange:Int( key:String, value:Object ) Abstract
+	
+	Rem
+	bbdoc: Get gadget type
+	about: TLayoutPanel will return Panel etc.
+	EndRem
+	Method GetType:String()
+		If Not Self._cachedType Then
+			Self._cachedType = TTypeId.ForObject( Self ).Name()[7..]
+		EndIf
+		Return Self._cachedType
+	EndMethod
 	
 	Rem
 	bbdoc: Get gadget text
@@ -277,8 +290,8 @@ Type TLayoutGadget_Header Abstract
 	Rem
 	bbdoc: Get the gadget dirty state
 	EndRem
-	Method GetNeedsRefresh()
-		Self._dirty = True
+	Method GetNeedsRefresh:Int()
+		Return Self._dirty
 	EndMethod
 	
 	' Enumerator
