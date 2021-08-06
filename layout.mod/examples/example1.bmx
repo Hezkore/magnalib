@@ -5,28 +5,34 @@ Import brl.standardio
 Import brl.max2d
 Import brl.glmax2d
 
-rem
-Local myLayout:TLayout = New TLayout( 320, 240 )
-myLayout.AddGadget( New TLayoutButton( "button1", 20, 32, "B1" ) )
-myLayout.AddGadget( New TLayoutButton( "button2", -1, 32, "Button 2" ) )
-myLayout.AddGadget( New TLayoutContainer( "container1", ELayoutStyle.StackVertical ) )
-myLayout.LastGadget.AddGadget( New TLayoutButton( "subbutton1", "sub1" ) )
-myLayout.LastGadget.AddGadget( New TLayoutContainer( "container2", ELayoutStyle.StackHorizontal ) )
-myLayout.LastGadget.LastGadget.AddGadget( New TLayoutButton( "subsubbutton1", "subsub1" ) )
-myLayout.LastGadget.LastGadget.AddGadget( New TLayoutButton( "subsubbutton2", "subsub2" ) )
-myLayout.LastGadget.AddGadget( New TLayoutButton( "subbutton2", "sub2" ) )
-myLayout.AddGadget( New TLayoutButton( "button4", 50, 32, "B4" ) )
-endrem
+Local myLayout:TLayoutGadget = TLayoutGadget( GadgetFromString( """
+#window (size = 320 240) {
+	button#b1 (text=~qButt1~q, grow=1, size=32 24)
+	button#b2 (text=~qButton 2~q, size=68 24)
+	(grow=1) {
+		button#b3 (text=B3, size=24)
+	}
+	button#b4 (text=~qButton 4~q, size=68 24)
+	button#b5 (text=~qButton 5~q, size=68 24)
+}
+""" )[0] )
+'myLayout.AddGadget( GadgetFromString( "b1#button (text=~qButton 1~q, size=64)" ) )
+'myLayout.AddGadget( New TLayoutButton( ["id=b1", "text=Button 1", "size=64"] ) )
 
-Local myLayout:TLayout = New TLayout( 320, 240, ELayoutStyle.StackVertical )
+' Make example layout
+' TLayout is the same as TLayoutContainer
+rem
+Local myLayout:TLayoutContainer = New TLayoutContainer( 320, 240, ELayoutStyle.StackVertical )
 myLayout.AddGadget( New TLayoutContainer( "window", -1, 16, ELayoutStyle.StackHorizontal ) )
 myLayout.LastGadget.AddGadget( New TLayoutContainer( "expand" ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "minimize", 16, -1, "_" ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "close", 16, -1, "x" ) )
-myLayout.AddGadget( New TLayoutContainer( "toolbar", -1, 16, ELayoutStyle.StackHorizontal ) )
+myLayout.AddGadget( New TLayoutContainer( "toolbar", -1, 16, ELayoutStyle.WrapHorizontal ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "button1", 64, -1, "File" ) )
-myLayout.LastGadget.AddGadget( New TLayoutButton( "button2", 64, -1, "Edit" ) )
-myLayout.LastGadget.AddGadget( New TLayoutButton( "button3", 64, -1, "Help" ) )
+myLayout.LastGadget.AddGadget( New TLayoutButton( "button2", -1, -1, "Edit" ) )
+myLayout.LastGadget.AddGadget( New TLayoutButton( "button3", 64, -1, "View" ) )
+myLayout.LastGadget.AddGadget( New TLayoutButton( "button4", 64, -1, "Blah" ) )
+myLayout.LastGadget.AddGadget( New TLayoutButton( "button5", 64, -1, "Help" ) )
 myLayout.AddGadget( New TLayoutContainer( "main", ELayoutStyle.StackHorizontal ) )
 myLayout.LastGadget.AddGadget( New TLayoutContainer( "empty", 96, -1 ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "area", -1, -1, "Some Area" ) )
@@ -34,44 +40,58 @@ myLayout.AddGadget( New TLayoutContainer( "buttonrow", -1, 24 ) )
 myLayout.LastGadget.AddGadget( New TLayoutContainer( "expand" ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "apply", 64, -1, "Apply" ) )
 myLayout.LastGadget.AddGadget( New TLayoutButton( "abort", 64, -1, "Abort" ) )
+endrem
+
+Print( "myLayout has the following properties: " )
+Print( ", ".Join( myLayout.GetProperties() ) )
 
 Graphics( 640, 480 )
-
 While Not AppTerminate() And Not KeyDown(KEY_ESCAPE)
-	
 	Cls()
-	SetBlend( ALPHABLEND )
 	
-	myLayout._fixedSize = New SVec2I( 320 + Sin( MilliSecs() * 0.1 ) * 100, 240 + Cos( MilliSecs() * 0.1 ) * 100 )
-	myLayout._dirty = True
+	myLayout.SetPosition( ..
+		64 + Sin( MilliSecs() * 0.075 ) * 8,..
+		128 + Cos( MilliSecs() * 0.075 ) * 8 )
 	
-	DrawGenericGadgetItem( myLayout, New SVec2I( 32, 32 )  )
+	myLayout.SetSize( ..
+		320 + Sin( MilliSecs() * 0.09 ) * 80,..
+		240 + Cos( MilliSecs() * 0.09 ) * 80 )
+	
+	' Draw the base container the same way as any gadget
+	DrawGenericGadgetItem( myLayout )
+	
+	' Draw base container children
 	For Local g:TLayoutGadget = EachIn myLayout
-		DrawGenericGadgetItem( g, New SVec2I( 32, 32 ) )
+		DrawGenericGadgetItem( g )
 	Next
 	
-	Flip(1)
+	Flip( 1 )
 Wend
 
-Function DrawGenericGadgetItem( g:TLayoutGadget, offset:SVec2I )
-	SetOrigin( offset.x, offset.y)
-	SetAlpha( 0.1 )
-	DrawRect( g.GadgetPosition.x, g.GadgetPosition.y, g.GadgetSize.x, g.GadgetSize.y )
+Function DrawGenericGadgetItem( g:TLayoutGadget )
+	SetBlend( ALPHABLEND )
 	
+	' Area rectangle
+	SetAlpha( 0.15 )
+	If g.Parent Then SetColor( 233, 179, 255 ) Else SetColor( 194, 218, 255 )
+	DrawRect( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y )
+	
+	' Outline
 	SetAlpha( 0.5 )
-	DrawLine( g.GadgetPosition.x, g.GadgetPosition.y, g.GadgetPosition.x + g.GadgetSize.x, g.GadgetPosition.y, False )
-	DrawLine( g.GadgetPosition.x + g.GadgetSize.x, g.GadgetPosition.y, g.GadgetPosition.x + g.GadgetSize.x, g.GadgetPosition.y + g.GadgetSize.y, False )
-	DrawLine( g.GadgetPosition.x + g.GadgetSize.x, g.GadgetPosition.y + g.GadgetSize.y, g.GadgetPosition.x, g.GadgetPosition.y + g.GadgetSize.y, False )
-	DrawLine( g.GadgetPosition.x, g.GadgetPosition.y + g.GadgetSize.y, g.GadgetPosition.x, g.GadgetPosition.y, False )
+	DrawLine( g.GetPosition.x, g.GetPosition.y, g.GetPosition.x + g.GetSize.x, g.GetPosition.y, False )
+	DrawLine( g.GetPosition.x + g.GetSize.x, g.GetPosition.y, g.GetPosition.x + g.GetSize.x, g.GetPosition.y + g.GetSize.y, False )
+	DrawLine( g.GetPosition.x + g.GetSize.x, g.GetPosition.y + g.GetSize.y, g.GetPosition.x, g.GetPosition.y + g.GetSize.y, False )
+	DrawLine( g.GetPosition.x, g.GetPosition.y + g.GetSize.y, g.GetPosition.x, g.GetPosition.y, False )
 	
-	If g._text Then
-		DrawText( g._text, ..
-			g.GadgetPosition.x + g.GadgetSize.x / 2 - TextWidth( g._text ) / 2,..
-			g.GadgetPosition.y + g.GadgetSize.y / 2 - TextHeight( g._text ) / 2 )
+	' Text
+	If g.GetText() Then
+		DrawText( g.GetText(), ..
+			g.GetPosition.x + g.GetSize.x / 2 - TextWidth( g.GetText() ) / 2,..
+			g.GetPosition.y + g.GetSize.y / 2 - TextHeight( g.GetText() ) / 2 )
 	EndIf
 	
+	' Draw any potential children of this gadget
 	For Local cg:TLayoutGadget = EachIn g
-		DrawGenericGadgetItem( cg, New SVec2I( g.GadgetPosition.x + offset.x, g.GadgetPosition.y + offset.y ) )
+		DrawGenericGadgetItem( cg )
 	Next
-	SetOrigin( 0, 0 )
 EndFunction
