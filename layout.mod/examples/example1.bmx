@@ -77,16 +77,17 @@ While Not AppTerminate() And Not KeyDown(KEY_ESCAPE)
 		DrawGenericGadgetItem( g )
 	Next
 	
-	Flip( 1 )
+	Flip( 0 )
 Wend
 
 Function DrawGenericGadgetItem( g:TLayoutGadget )
 	SetBlend( ALPHABLEND )
 	
 	' Area rectangle
+	' Cache "Panel".Hash() ULong for even better performance
 	SetAlpha( 0.15 )
-	Select g.GetType()
-		Case "Panel"
+	Select g.GetTypeHash()
+		Case "Panel".Hash()
 			SetColor( 166, 204, 255 )
 		Default
 			SetColor( 239, 201, 253 )

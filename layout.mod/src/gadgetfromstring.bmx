@@ -7,13 +7,13 @@ Function GadgetFromString:TLayoutGadget[]( str:String )
 	Local ch:String
 	Local token:String
 	
-	Local gadgets:TList = New TList ' Oh I wish TStack<TLayoutGadget> didn't crash
+	Local gadgets:TObjectList = New TObjectList ' Oh I wish TStack<TLayoutGadget> didn't crash
 	Local gadgetId:String
 	Local gadgetType:String
-	Local gadgetProp:TList = New TList
+	Local gadgetProp:TObjectList = New TObjectList
 	Local lastGadget:TLayoutGadget
 	
-	Local gadgetDepth:TList = New TList ' Again, TStack please
+	Local gadgetDepth:TObjectList = New TObjectList ' Again, TStack please
 	
 	Local inParam:Int
 	Local inString:Int

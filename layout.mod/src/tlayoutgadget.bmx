@@ -99,7 +99,7 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		If Not gadget Return
 		Self.SetNeedsRefresh()
 		TLayoutGadget( gadget ).Parent = Self
-		ListAddLast( Self.Children, TLayoutGadget( gadget ) )
+		Self.Children.AddLast( TLayoutGadget( gadget ) )
 		Self._recalculateChildrenIfNeeded()
 	EndMethod
 	
@@ -112,7 +112,7 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		
 		For Local g:TLayoutGadget = EachIn gadgets
 			g.Parent = Self
-			ListAddLast( Self.Children, g )
+			Self.Children.AddLast( g )
 		Next
 		
 		Self._recalculateChildrenIfNeeded()

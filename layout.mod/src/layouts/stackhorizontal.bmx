@@ -4,7 +4,7 @@ Import "../tlayoutgadget.bmx"
 Import "../tlayoutstyle.bmx"
 
 Type TLayoutStyleStackHorizontal Extends TLayoutStyle
-	Method RecalculateChildren( children:TList )
+	Method RecalculateChildren( children:TObjectList )
 		
 		Local posX:Int
 		For Local g:TLayoutGadget_Header = EachIn children

@@ -59,7 +59,7 @@ EndFunction
 Function GetGadgetProperties:String[]( gadget:Object )
 	If Not gadget Return []
 	
-	Local result:TList = New TList
+	Local result:TObjectList = New TObjectList
 	Local id:TTypeId = TTypeId.ForObject( gadget )
 	
 	For Local fld:TField = EachIn id.EnumFields()
