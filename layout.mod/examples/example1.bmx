@@ -16,6 +16,7 @@ Local myLayout:TLayoutGadget = TLayoutGadget( GadgetFromString( """
 	button#b5 (text=~qButton 5~q, size=68 24)
 }
 """ )[0] )
+
 'myLayout.AddGadget( GadgetFromString( "b1#button (text=~qButton 1~q, size=64)" ) )
 'myLayout.AddGadget( New TLayoutButton( ["id=b1", "text=Button 1", "size=64"] ) )
 
