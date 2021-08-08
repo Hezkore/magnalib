@@ -11,7 +11,7 @@ bbdoc: Game
 about:
 Magna scene manager
 endrem
-Module magna.scene
+Module magnalib.scene
 
 ModuleInfo "Author: Rob C."
 ModuleInfo "License: MIT"

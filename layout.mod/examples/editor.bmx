@@ -1,6 +1,6 @@
 SuperStrict
 
-Framework magna.layout
+Framework magnalib.layout
 Import brl.eventqueue
 Import maxgui.drivers
 Import maxgui.proxygadgets

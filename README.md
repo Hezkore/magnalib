@@ -8,13 +8,14 @@ MagnaLib helps you quickly get started with developing your next [BlitzMax NG](h
 * Free and open source
 
 ## Modules
-* [magna.config](/config.mod) - Load Magna configuration files using reflection and JConv
+* [magnalib.config](/config.mod) - Load Magna configuration files using reflection
+* [magnalib.layout](/layout.mod) - Magna layout generator
 
 ## Installation
-Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magna.mod/` folder.
+Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magnalib.mod/` folder.
 
 If you instead use GitHub's "Download Zip"; remember that the default name is "magnalib-master"\
 _WHICH IS NOT CORRECT_!\
-Rename to `magna.mod` once extracted.
+Rename to `magnalib.mod` once extracted.
 
-The correct path for this readme file should be `/mod/magna.mod/README.md`
+The correct path for this readme file should be `/mod/magnalib.mod/README.md`

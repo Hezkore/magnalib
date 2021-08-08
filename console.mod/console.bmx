@@ -8,7 +8,7 @@ bbdoc: Console
 about:
 Magna console
 endrem
-Module magna.console
+Module magnalib.console
 
 ModuleInfo "Author: Rob C."
 ModuleInfo "License: MIT"

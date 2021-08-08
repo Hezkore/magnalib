@@ -1,6 +1,6 @@
 SuperStrict
 
-Framework magna.console
+Framework magnalib.console
 Import brl.standardio
 
 Local myConsole:TMagnaConsole = New TMagnaConsole

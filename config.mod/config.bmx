@@ -9,7 +9,7 @@ bbdoc: Configuration
 about:
 Load Magna configuration files using reflection and JConv
 endrem
-Module magna.config
+Module magnalib.config
 
 ModuleInfo "Author: Rob C."
 ModuleInfo "License: MIT"
