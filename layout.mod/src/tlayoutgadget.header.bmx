@@ -110,6 +110,7 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Get the current size of the gadget
 	EndRem
 	Method GetSize:SVec2I()
+		Self._recalculateChildrenIfNeeded()
 		Return New SVec2I( Self.Width, Self.Height )
 	EndMethod
 	
@@ -127,6 +128,7 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Get the minimum size of the gadget
 	EndRem
 	Method GetMinSize:SVec2I()
+		Self._recalculateChildrenIfNeeded()
 		Return Self._minSize
 	EndMethod
 	

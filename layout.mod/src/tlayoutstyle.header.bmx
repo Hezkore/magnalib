@@ -50,56 +50,46 @@ Type TLayoutStyle_Header Abstract
 			Max( 0, child.GetSize().y - shrinkY ) )
 		Return oldSize - child.GetSize()
 	EndMethod
-	Method GetLargestXChild:TLayoutGadget_Header()
+	Method _getLargestChild:TLayoutGadget_Header( testX:Int, testY:Int )
 		Local largestChild:TLayoutGadget_Header
 		
 		' Attempt to get child above min size
 		For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
 			If g.GetSize().x <= g.GetMinSize().x Then Continue
 			If g.GetSize().y <= g.GetMinSize().y Then Continue
-			
 			If largestChild And largestChild = g Then Continue
-			If Not largestChild Or ..
-				(largestChild And largestChild.GetSize().x < g.GetSize().x) Then ..
-					largestChild = g
+			If Not largestChild Then
+				largestChild = g
+			Else
+				If testX And largestChild.GetSize().x < g.GetSize().x Then largestChild = g
+				If testY And largestChild.GetSize().y < g.GetSize().y Then largestChild = g
+			EndIf
 		Next
 		
 		' Any child
 		If Not largestChild Then
 			For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
 				If largestChild And largestChild = g Then Continue
-				If Not largestChild Or ..
-					(largestChild And largestChild.GetSize().x < g.GetSize().x) Then ..
-						largestChild = g
+				If Not largestChild Then
+					largestChild = g
+				Else
+					If testX And largestChild.GetSize().x < g.GetSize().x Then largestChild = g
+					If testY And largestChild.GetSize().y < g.GetSize().y Then largestChild = g
+				EndIf
 			Next
 		EndIf
 		
 		Return largestChild
 	EndMethod
+	Method GetLargestXChild:TLayoutGadget_Header()
+		Return Self._getLargestChild( True, False )
+	EndMethod
 	Method GetLargestYChild:TLayoutGadget_Header()
-		Local largestChild:TLayoutGadget_Header
-		
-		' Attempt to get child above min size
-		For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
-			If g.GetSize().x <= g.GetMinSize().x Then Continue
-			If g.GetSize().y <= g.GetMinSize().y Then Continue
-			
-			If largestChild And largestChild = g Then Continue
-			If Not largestChild Or ..
-				(largestChild And largestChild.GetSize().y < g.GetSize().y) Then ..
-					largestChild = g
-		Next
-		
-		' Any child
-		If Not largestChild Then
-			For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
-				If largestChild And largestChild = g Then Continue
-				If Not largestChild Or ..
-					(largestChild And largestChild.GetSize().y < g.GetSize().y) Then ..
-						largestChild = g
-			Next
-		EndIf
-		
-		Return largestChild
+		Return Self._getLargestChild( False, True )
+	EndMethod
+	Method ResizeToAtLeastMinSize()
+		Self.Parent.SetSize( ..
+			Max( Self.Parent.GetSize().x, Self.Parent.GetMinSize().x  ), ..
+			Max( Self.Parent.GetSize().y, Self.Parent.GetMinSize().y  ) )
 	EndMethod
 EndType
