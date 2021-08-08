@@ -43,8 +43,8 @@ Type TLayoutGadget_Header Abstract
 		Field BorderBottom:Int		{gadgetProperty}
 		Field BorderLeft:Int			{gadgetProperty}
 		
-		Field SpacingWidth:Int = 16 {gadgetProperty}
-		Field SpacingHeight:Int = 16{gadgetProperty}
+		Field SpacingWidth:Int = 0 {gadgetProperty}
+		Field SpacingHeight:Int = 0{gadgetProperty}
 	Public
 	
 	Method _recalculateChildrenIfNeeded() Abstract
@@ -89,7 +89,7 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set gadget grow state
 	EndRem
 	Method SetGrow( value:Int )
-		If Not Self.Grow = value Then
+		If Self.Grow <> value Then
 			Self.Grow = value
 			Self.SetNeedsRefresh()
 		EndIf
@@ -99,9 +99,11 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set the size of the gadget
 	EndRem
 	Method SetSize( width:Int, height:Int )
-		Self.Width = width
-		Self.Height = height
-		Self.SetNeedsRefresh()
+		If Self.Width <> width Or Self.Height <> height Then
+			Self.Width = width
+			Self.Height = height
+			Self.SetNeedsRefresh()
+		EndIf
 	EndMethod
 	
 	Rem
@@ -115,8 +117,10 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set the minimum size of the gadget
 	EndRem
 	Method SetMinSize( width:Int, height:Int )
-		Self._minSize = New SVec2I( width, height )
-		Self._dirty = True
+		If Self._minSize.x <> width Or Self._minSize.y <> height Then
+			Self._minSize = New SVec2I( width, height )
+			Self.SetNeedsRefresh()
+		EndIf
 	EndMethod
 	
 	Rem
@@ -136,10 +140,28 @@ Type TLayoutGadget_Header Abstract
 	EndMethod
 	
 	Rem
+	bbdoc: Get gadget minimum size with inner padding
+	EndRem
+	Method GetMinInnerSize:SVec2I()
+		Return Self.GetMinSize() - New SVec2I( ..
+			Self.PaddingLeft + Self.PaddingRight,..
+			Self.PaddingTop + Self.PaddingBottom )
+	EndMethod
+	
+	Rem
 	bbdoc: Get gadget current size with outer margin
 	EndRem
 	Method GetOuterSize:SVec2I()
 		Return Self.GetSize() + New SVec2I( ..
+			Self.MarginLeft + Self.MarginRight,..
+			Self.MarginTop + Self.MarginBottom )
+	EndMethod
+	
+	Rem
+	bbdoc: Get gadget minimum size with outer margin
+	EndRem
+	Method GetMinOuterSize:SVec2I()
+		Return Self.GetMinSize() + New SVec2I( ..
 			Self.MarginLeft + Self.MarginRight,..
 			Self.MarginTop + Self.MarginBottom )
 	EndMethod
@@ -157,8 +179,19 @@ Type TLayoutGadget_Header Abstract
 	Method GetPosition:SVec2I()
 		If Self.Parent Then ..
 			Return New SVec2I( ..
-				Self._position.x + Self.Parent.GetPosition().x,..
-				Self._position.y + Self.Parent.GetPosition().y )
+				Self._position.x + Self.Parent.GetInnerPosition().x,..
+				Self._position.y + Self.Parent.GetInnerPosition().y )
+		Return Self._position
+	EndMethod
+	
+	Rem
+	bbdoc: Get the inner position of the gadget
+	EndRem
+	Method GetInnerPosition:SVec2I()
+		If Self.Parent Then ..
+			Return New SVec2I( ..
+				Self._position.x + Self.Parent.PaddingLeft + Self.Parent.GetInnerPosition().x,..
+				Self._position.y + Self.Parent.PaddingTop + Self.Parent.GetInnerPosition().y )
 		Return Self._position
 	EndMethod
 	
@@ -173,22 +206,22 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set gadget border size
 	EndRem
 	Method SetBorder( value:SVec4I )
-		If Not Self.BorderTop = value.x Then
+		If Self.BorderTop <> value.x Then
 			Self.BorderTop = value.x
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.BorderRight = value.y Then
+		If Self.BorderRight <> value.y Then
 			Self.BorderRight = value.y
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.BorderBottom = value.z Then
+		If Self.BorderBottom <> value.z Then
 			Self.BorderBottom = value.z
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.BorderLeft = value.w Then
+		If Self.BorderLeft <> value.w Then
 			Self.BorderLeft = value.w
 			Self.SetNeedsRefresh()
 		EndIf
@@ -205,22 +238,22 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set gadget margin size
 	EndRem
 	Method SetMargin( value:SVec4I )
-		If Not Self.MarginTop = value.x Then
+		If Self.MarginTop <> value.x Then
 			Self.MarginTop = value.x
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.MarginRight = value.y Then
+		If Self.MarginRight <> value.y Then
 			Self.MarginRight = value.y
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.MarginBottom = value.z Then
+		If Self.MarginBottom <> value.z Then
 			Self.MarginBottom = value.z
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.MarginLeft = value.w Then
+		If Self.MarginLeft <> value.w Then
 			Self.MarginLeft = value.w
 			Self.SetNeedsRefresh()
 		EndIf
@@ -237,22 +270,22 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set gadget padding size
 	EndRem
 	Method SetPadding( value:SVec4I )
-		If Not Self.PaddingTop = value.x Then
+		If Self.PaddingTop <> value.x Then
 			Self.PaddingTop = value.x
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.PaddingRight = value.y Then
+		If Self.PaddingRight <> value.y Then
 			Self.PaddingRight = value.y
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.PaddingBottom = value.z Then
+		If Self.PaddingBottom <> value.z Then
 			Self.PaddingBottom = value.z
 			Self.SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.PaddingLeft = value.w Then
+		If Self.PaddingLeft <> value.w Then
 			Self.PaddingLeft = value.w
 			Self.SetNeedsRefresh()
 		EndIf
@@ -269,12 +302,12 @@ Type TLayoutGadget_Header Abstract
 	bbdoc: Set gadget child spacing size
 	EndRem
 	Method SetSpacing( value:SVec2I )
-		If Not Self.SpacingWidth = value.x Then
+		If Self.SpacingWidth <> value.x Then
 			Self.SpacingWidth = value.x
 			SetNeedsRefresh()
 		EndIf
 		
-		If Not Self.SpacingHeight = value.y Then
+		If Self.SpacingHeight <> value.y Then
 			Self.SpacingHeight = value.y
 			SetNeedsRefresh()
 		EndIf

@@ -21,14 +21,15 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		If Self.GetNeedsRefresh() Then
 			Self.SetNeedsRefresh( False )
 			If Self.Children.Count() > 0 Then ' Is this a good idea?
+				For Local g:TLayoutGadget = EachIn Self
+					g.SetNeedsRefresh()
+				Next
 				' Use fallback style if no style defined
 				If Not Self._layoutStyle Then ..
 					Self.SetLayoutStyle( TLayoutGadget.FALLBACK_STYLE )
 				' Update style
+				Self._layoutStyle._cacheChildrenInfo()
 				Self._layoutStyle.RecalculateChildren( Self.Children )
-				For Local g:TLayoutGadget = EachIn Self
-					g.SetNeedsRefresh()
-				Next
 			EndIF
 		EndIf
 	EndMethod
@@ -99,6 +100,9 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		If Not gadget Return
 		Self.SetNeedsRefresh()
 		TLayoutGadget( gadget ).Parent = Self
+		'Self.SetMinSize( ..
+		'	Max( Self.GetMinSize().x, TLayoutGadget( gadget ).GetMinSize().x ), ..
+		'	Max( Self.GetMinSize().y, TLayoutGadget( gadget ).GetMinSize().y ) )
 		Self.Children.AddLast( TLayoutGadget( gadget ) )
 		Self._recalculateChildrenIfNeeded()
 	EndMethod
@@ -112,6 +116,9 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		
 		For Local g:TLayoutGadget = EachIn gadgets
 			g.Parent = Self
+			'Self.SetMinSize( ..
+			'	Max( Self.GetMinSize().x, g.GetMinSize().x ), ..
+			'	Max( Self.GetMinSize().y, g.GetMinSize().y ) )
 			Self.Children.AddLast( g )
 		Next
 		
@@ -165,30 +172,19 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 				Local xy:String[] = String( value ).ToLower().Split( " " )
 				If xy.Length > 0 Then
 					If xy.Length = 1 Then xy = xy[..2]; xy[1] = xy[0]
-					If Self.GetGrow() Then
-						Self.SetMinSize( Int( xy[0].Trim() ), Int( xy[1].Trim() ) )
-					Else
-						Self.SetSize( Int( xy[0].Trim() ), Int( xy[1].Trim() ) )
-					EndIf
+					Self.SetMinSize( Int( xy[0].Trim() ), Int( xy[1].Trim() ) )
+					Self.SetSize( Int( xy[0].Trim() ), Int( xy[1].Trim() ) )
 				EndIf
 				Return True
 			
 			Case "width"
 				Local v:Int = Int( String( value ).Trim() )
-				If Self.GetGrow() Then
-					Self.SetMinSize( v, Self.GetMinSize().y )
-				Else
-					Self.SetSize( v, Self.GetMinSize().y )
-				EndIf
+				Self.SetMinSize( v, Self.GetMinSize().y )
 				Return True
 				
 			Case "height"
 				Local v:Int = Int( String( value ).Trim() )
-				If Self.GetGrow() Then
-					Self.SetMinSize( Self.GetMinSize().x, v )
-				Else
-					Self.SetSize( Self.GetMinSize().x, v)
-				EndIf
+				Self.SetMinSize( Self.GetMinSize().x, v )
 				Return True
 			
 		EndSelect

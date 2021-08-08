@@ -6,25 +6,29 @@ Import brl.max2d
 Import brl.glmax2d
 
 Local myLayout:TLayoutGadget[] = GadgetFromString( """
-panel#window (size = 320 240) {
-	button#b1 (text=~qButt1~q, grow=1, size=32 24)
-	button#b2 (text=~qButton 2~q, size=68 24)
-	(grow=1, layout=stackVertical) {
-		button#b3 (text=B3, size=24)
+#window (layout=stackVertical) {
+	#toolbar (layout=wrapHorizontal) {
+		button#open (text="open")
+		button#save (text="save")
+		button#saveAs (text="save as")
+		(grow=1)
+		button#search ()
 	}
-	button#b4 (text=~qButton 4~q, size=68 24)
-	button#b5 (text=~qButton 5~q, size=68 24)
-}
-
-#anotherWindow (pos=350 16, size=280 200) {
-	button#b1 (text=~qButt1~q, grow=1, size=32 24)
-	button#b2 (text=~qButton 2~q, size=68 24)
-	(grow=1, layout=stackVertical) {
-		button#b3 (text=B3, size=24)
+	#content (layout=stackHorizontal, grow=1) {
+		(width=200) {
+			//sidebar content here
+		}
+		(grow=1, colour=content, border=thin, padding=controlSpace) {
+			text(value=$content)
+		}
 	}
-	button#b4 (text=~qButton 4~q, size=68 24)
-	button#b5 (text=~qButton 5~q, size=68 24)
+	#actions (layout=stackHorizontal) {
+		button#cancel (text="Cancel")
+		(grow=1)
+		button#okay (text="Okay")
+	}
 }
+			
 """ )
 
 'myLayout.AddGadget( GadgetFromString( "b1#button (text=~qButton 1~q, size=64)" ) )
@@ -84,9 +88,9 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	SetBlend( ALPHABLEND )
 	
 	' Area rectangle
-	' Cache "Panel".Hash() ULong for even better performance
 	SetAlpha( 0.15 )
 	Select g.GetTypeHash()
+		' Cache "Panel".Hash() ULong for even better performance
 		Case "Panel".Hash()
 			SetColor( 166, 204, 255 )
 		Default

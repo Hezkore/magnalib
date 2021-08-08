@@ -12,6 +12,7 @@ Import "src/gadgets/button.bmx"
 
 ' Layouts
 Import "src/layouts/stackhorizontal.bmx"
+Import "src/layouts/stackvertical.bmx"
 
 ' Script support
 Import "src/gadgetfromstring.bmx"
