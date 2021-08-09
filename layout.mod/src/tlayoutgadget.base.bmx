@@ -2,7 +2,7 @@ Import brl.reflection
 Import brl.objectlist
 Import brl.vector
 
-Type TLayoutGadget_Header Abstract
+Type TLayoutGadget_Base Abstract
 	' CONST
 	Const META_PROPERTY:String = "gadgetProperty"
 	Const FALLBACK_STYLE:String = "StackHorizontal"
@@ -12,7 +12,7 @@ Type TLayoutGadget_Header Abstract
 	Field Id:String
 	
 	Field Children:TObjectList = New TObjectList
-	Field Parent:TLayoutGadget_Header
+	Field Parent:TLayoutGadget_Base
 	
 	Private
 		' Internal fields
@@ -28,23 +28,23 @@ Type TLayoutGadget_Header Abstract
 		Field Width:Int				{gadgetProperty}
 		Field Height:Int				{gadgetProperty}
 		
-		Field MarginTop:Int = 0		{gadgetProperty}
-		Field MarginRight:Int = 0	{gadgetProperty}
-		Field MarginBottom:Int = 0	{gadgetProperty}
-		Field MarginLeft:Int = 0	{gadgetProperty}
+		Field MarginTop:Int = 1		{gadgetProperty}
+		Field MarginRight:Int = 1	{gadgetProperty}
+		Field MarginBottom:Int = 1	{gadgetProperty}
+		Field MarginLeft:Int = 1	{gadgetProperty}
 		
-		Field PaddingTop:Int = 0	{gadgetProperty}
-		Field PaddingRight:Int = 0	{gadgetProperty}
-		Field PaddingBottom:Int = 0{gadgetProperty}
-		Field PaddingLeft:Int = 0	{gadgetProperty}
+		Field PaddingTop:Int = 3	{gadgetProperty}
+		Field PaddingRight:Int = 3	{gadgetProperty}
+		Field PaddingBottom:Int = 3{gadgetProperty}
+		Field PaddingLeft:Int = 3	{gadgetProperty}
 		
 		Field BorderTop:Int			{gadgetProperty}
 		Field BorderRight:Int		{gadgetProperty}
 		Field BorderBottom:Int		{gadgetProperty}
 		Field BorderLeft:Int			{gadgetProperty}
 		
-		Field SpacingWidth:Int = 0 {gadgetProperty}
-		Field SpacingHeight:Int = 0{gadgetProperty}
+		Field SpacingWidth:Int = 4 {gadgetProperty}
+		Field SpacingHeight:Int = 2{gadgetProperty}
 	Public
 	
 	Method _recalculateChildrenIfNeeded() Abstract
@@ -137,8 +137,17 @@ Type TLayoutGadget_Header Abstract
 	EndRem
 	Method GetInnerSize:SVec2I()
 		Return Self.GetSize() - New SVec2I( ..
-			Self.PaddingLeft + Self.PaddingRight,..
-			Self.PaddingTop + Self.PaddingBottom )
+			Self.GetPaddingWidth(),..
+			Self.GetPaddingHeight() )
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget current size with inner padding
+	EndRem
+	Method SetInnerSize( width:Int, height:Int )
+		Self.SetSize( ..
+			width + Self.GetPaddingWidth(), ..
+			height + Self.GetPaddingHeight() )
 	EndMethod
 	
 	Rem
@@ -146,8 +155,17 @@ Type TLayoutGadget_Header Abstract
 	EndRem
 	Method GetMinInnerSize:SVec2I()
 		Return Self.GetMinSize() - New SVec2I( ..
-			Self.PaddingLeft + Self.PaddingRight,..
-			Self.PaddingTop + Self.PaddingBottom )
+			Self.GetPaddingWidth(),..
+			Self.GetPaddingHeight() )
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget minimum size with inner padding
+	EndRem
+	Method SetMinInnerSize( width:Int, height:Int )
+		Self.SetMinSize( ..
+			width + Self.GetPaddingWidth(), ..
+			height + Self.GetPaddingHeight() )
 	EndMethod
 	
 	Rem
@@ -155,8 +173,17 @@ Type TLayoutGadget_Header Abstract
 	EndRem
 	Method GetOuterSize:SVec2I()
 		Return Self.GetSize() + New SVec2I( ..
-			Self.MarginLeft + Self.MarginRight,..
-			Self.MarginTop + Self.MarginBottom )
+			Self.GetMarginWidth(), ..
+			Self.GetMarginHeight() )
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget current size with outer margin
+	EndRem
+	Method SetOuterSize( width:Int, height:Int )
+		Self.SetSize( ..
+			width - Self.GetMarginWidth(), ..
+			height - Self.GetMarginHeight() )
 	EndMethod
 	
 	Rem
@@ -164,8 +191,17 @@ Type TLayoutGadget_Header Abstract
 	EndRem
 	Method GetMinOuterSize:SVec2I()
 		Return Self.GetMinSize() + New SVec2I( ..
-			Self.MarginLeft + Self.MarginRight,..
-			Self.MarginTop + Self.MarginBottom )
+			Self.GetMarginWidth(), ..
+			Self.GetMarginHeight() )
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget minimum size with outer margin
+	EndRem
+	Method SetMinOuterSize( width:Int, height:Int )
+		Self.SetMinSize( ..
+			width - Self.GetMarginWidth(), ..
+			height - Self.GetMarginHeight() )
 	EndMethod
 	
 	Rem
@@ -176,13 +212,27 @@ Type TLayoutGadget_Header Abstract
 	EndMethod
 	
 	Rem
+	bbdoc: Set the position of the gadget with outer margin
+	EndRem
+	Method SetOuterPosition( x:Int, y:Int )
+		SetPosition( x + Self.MarginLeft, y + Self.MarginTop )
+	EndMethod
+	
+	Rem
+	bbdoc: Set the position of the gadget with inner padding
+	EndRem
+	Method SetInnerPosition( x:Int, y:Int )
+		SetPosition( x - Self.PaddingLeft, y - Self.PaddingTop )
+	EndMethod
+	
+	Rem
 	bbdoc: Get the current position of the gadget
 	EndRem
 	Method GetPosition:SVec2I()
 		If Self.Parent Then ..
 			Return New SVec2I( ..
-				Self._position.x + Self.Parent.GetInnerPosition().x,..
-				Self._position.y + Self.Parent.GetInnerPosition().y )
+				Self._position.x + Self.Parent.GetPosition().x,..
+				Self._position.y + Self.Parent.GetPosition().y )
 		Return Self._position
 	EndMethod
 	
@@ -192,9 +242,20 @@ Type TLayoutGadget_Header Abstract
 	Method GetInnerPosition:SVec2I()
 		If Self.Parent Then ..
 			Return New SVec2I( ..
-				Self._position.x + Self.Parent.PaddingLeft + Self.Parent.GetInnerPosition().x,..
-				Self._position.y + Self.Parent.PaddingTop + Self.Parent.GetInnerPosition().y )
-		Return Self._position
+				Self._position.x + Self.Parent.GetPosition().x + Self.PaddingLeft, ..
+				Self._position.y + Self.Parent.GetPosition().y + Self.PaddingTop )
+		Return Self._position + New SVec2I( Self.PaddingLeft, Self.PaddingTop )
+	EndMethod
+	
+	Rem
+	bbdoc: Get the outer position of the gadget
+	EndRem
+	Method GetOuterPosition:SVec2I()
+		If Self.Parent Then ..
+			Return New SVec2I( ..
+				Self._position.x + Self.Parent.GetPosition().x - Self.MarginLeft, ..
+				Self._position.y + Self.Parent.GetPosition().y - Self.MarginTop )
+		Return Self._position - New SVec2I( Self.MarginLeft, Self.MarginTop )
 	EndMethod
 	
 	Rem
@@ -236,6 +297,14 @@ Type TLayoutGadget_Header Abstract
 		Return New SVec4I( Self.MarginTop, Self.MarginRight, Self.MarginBottom, Self.MarginLeft  )
 	EndMethod
 	
+	Method GetMarginWidth:Int()
+		Return Self.MarginRight + Self.MarginLeft
+	EndMethod
+	
+	Method GetMarginHeight:Int()
+		Return Self.MarginTop + Self.MarginBottom
+	EndMethod
+	
 	Rem
 	bbdoc: Set gadget margin size
 	EndRem
@@ -266,6 +335,14 @@ Type TLayoutGadget_Header Abstract
 	EndRem
 	Method GetPadding:SVec4I()
 		Return New SVec4I( Self.PaddingTop, Self.PaddingRight, Self.PaddingBottom, Self.PaddingLeft  )
+	EndMethod
+	
+	Method GetPaddingWidth:Int()
+		Return Self.PaddingRight + Self.PaddingLeft
+	EndMethod
+	
+	Method GetPaddingHeight:Int()
+		Return Self.PaddingTop + Self.PaddingBottom
 	EndMethod
 	
 	Rem
@@ -301,6 +378,20 @@ Type TLayoutGadget_Header Abstract
 	EndMethod
 	
 	Rem
+	bbdoc: Get gadget child spacing width size
+	EndRem
+	Method GetSpacingWidth:Int()
+		Return Self.SpacingWidth
+	EndMethod
+	
+	Rem
+	bbdoc: Get gadget child spacing height size
+	EndRem
+	Method GetSpacingHeight:Int()
+		Return Self.SpacingHeight
+	EndMethod
+	
+	Rem
 	bbdoc: Set gadget child spacing size
 	EndRem
 	Method SetSpacing( value:SVec2I )
@@ -330,7 +421,7 @@ Type TLayoutGadget_Header Abstract
 	EndMethod
 	
 	' Enumerator
-	Method ObjectEnumerator:TLayoutGadget_Header()
+	Method ObjectEnumerator:TLayoutGadget_Base()
 		Self._recalculateChildrenIfNeeded()
 		Return Self
 	EndMethod
@@ -346,6 +437,6 @@ Type TLayoutGadget_Header Abstract
 	
 	Method NextObject:Object()
 		Self._enumIndex:+1
-		Return TLayoutGadget_Header( Children.ValueAtIndex( Self._enumIndex - 1) )
+		Return TLayoutGadget_Base( Children.ValueAtIndex( Self._enumIndex - 1) )
 	EndMethod
 EndType

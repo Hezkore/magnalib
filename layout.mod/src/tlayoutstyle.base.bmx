@@ -1,39 +1,47 @@
-Import "tlayoutgadget.header.bmx"
+Import "tlayoutgadget.base.bmx"
 
-Type TLayoutStyle_Header Abstract
-	Field Parent:TLayoutGadget_Header
+Type TLayoutStyle_Base Abstract
+	Field Gadget:TLayoutGadget_Base
 	Private ' Cached child data
 		Field _allChildrenMinSize:SVec2I
 		Field _growingChildrenCount:Int
 	Public
 	Method GetInnerSize:SVec2I()
-		Return Self.Parent.GetInnerSize()
+		Return Self.Gadget.GetInnerSize()
 	EndMethod
 	Method GetMinInnerSize:SVec2I()
-		Return Self.Parent.GetMinInnerSize()
+		Return Self.Gadget.GetMinInnerSize()
+	EndMethod
+	Method GetOuterSize:SVec2I()
+		Return Self.Gadget.GetOuterSize()
+	EndMethod
+	Method GetMinOuterSize:SVec2I()
+		Return Self.Gadget.GetMinOuterSize()
 	EndMethod
 	Method _cacheChildrenInfo()
-		Local minWidth:Int
-		Local minHeight:Int
+		Local w:Int
+		Local h:Int
 		Self._growingChildrenCount = 0
-		For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
-			If Not g.GetGrow() Then
-				minWidth:+g.GetMinOuterSize().x
-				minHeight:+g.GetMinOuterSize().y
-			Else
+		For Local g:TLayoutGadget_Base = EachIn Self.Gadget.Children
+			If g.GetGrow() Then
 				Self._growingChildrenCount:+1
+			Else
+				w:+g.GetMinOuterSize().x
+				h:+g.GetMinOuterSize().y
 			EndIf
 		Next
-		Self._allChildrenMinSize = New Svec2I( minWidth, minHeight )
+		w:+Self.GetSpacingWidth() * ( Self.Gadget.Children.Count() - 1 )
+		h:+Self.GetSpacingHeight() * ( Self.Gadget.Children.Count() - 1 )
+		Self._allChildrenMinSize = New Svec2I( w, h )
 	EndMethod
 	Method RecalculateChildren( children:TObjectList ) Abstract
 	Method GetChildrenMinSize:SVec2I()
 		Return Self._allChildrenMinSize
 	EndMethod
 	Method GetChildrenOverflow:SVec2I()
-		Local w:Int = Self.Parent.GetInnerSize().x
-		Local h:Int = Self.Parent.GetInnerSize().y
-		For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
+		Local w:Int = Self.Gadget.GetInnerSize().x
+		Local h:Int = Self.Gadget.GetInnerSize().y
+		For Local g:TLayoutGadget_Base = EachIn Self.Gadget.Children
 			w:-g.GetOuterSize().x
 			h:-g.GetOuterSize().y
 		Next
@@ -42,7 +50,7 @@ Type TLayoutStyle_Header Abstract
 	Method GetGrowingChildrenCount:Int()
 		Return Self._growingChildrenCount
 	EndMethod
-	Method ShrinkChild:SVec2I( child:TLayoutGadget_Header, shrinkX:Int, shrinkY:Int )
+	Method ShrinkChild:SVec2I( child:TLayoutGadget_Base, shrinkX:Int, shrinkY:Int )
 		If Not child Then Return New SVec2I( 0, 0 )
 		Local oldSize:SVec2I = child.GetSize()
 		child.SetSize( ..
@@ -50,11 +58,11 @@ Type TLayoutStyle_Header Abstract
 			Max( 0, child.GetSize().y - shrinkY ) )
 		Return oldSize - child.GetSize()
 	EndMethod
-	Method _getLargestChild:TLayoutGadget_Header( testX:Int, testY:Int )
-		Local largestChild:TLayoutGadget_Header
+	Method _getLargestChild:TLayoutGadget_Base( testX:Int, testY:Int )
+		Local largestChild:TLayoutGadget_Base
 		
 		' Attempt to get child above min size
-		For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
+		For Local g:TLayoutGadget_Base = EachIn Self.Gadget.Children
 			If g.GetSize().x <= g.GetMinSize().x Then Continue
 			If g.GetSize().y <= g.GetMinSize().y Then Continue
 			If largestChild And largestChild = g Then Continue
@@ -68,7 +76,7 @@ Type TLayoutStyle_Header Abstract
 		
 		' Any child
 		If Not largestChild Then
-			For Local g:TLayoutGadget_Header = EachIn Self.Parent.Children
+			For Local g:TLayoutGadget_Base = EachIn Self.Gadget.Children
 				If largestChild And largestChild = g Then Continue
 				If Not largestChild Then
 					largestChild = g
@@ -81,15 +89,16 @@ Type TLayoutStyle_Header Abstract
 		
 		Return largestChild
 	EndMethod
-	Method GetLargestXChild:TLayoutGadget_Header()
+	Method GetLargestXChild:TLayoutGadget_Base()
 		Return Self._getLargestChild( True, False )
 	EndMethod
-	Method GetLargestYChild:TLayoutGadget_Header()
+	Method GetLargestYChild:TLayoutGadget_Base()
 		Return Self._getLargestChild( False, True )
 	EndMethod
-	Method ResizeToAtLeastMinSize()
-		Self.Parent.SetSize( ..
-			Max( Self.Parent.GetSize().x, Self.Parent.GetMinSize().x  ), ..
-			Max( Self.Parent.GetSize().y, Self.Parent.GetMinSize().y  ) )
+	Method GetSpacingWidth:Int()
+		Return Self.Gadget.GetSpacingWidth()
+	EndMethod
+	Method GetSpacingHeight:Int()
+		Return Self.Gadget.GetSpacingHeight()
 	EndMethod
 EndType

@@ -2,19 +2,7 @@ Import "../tlayoutgadget.bmx"
 Import "../tlayoutstyle.bmx"
 
 Type TLayoutStyleStackBase Extends TLayoutStyle
-	
 	Method ResizeToParent( children:TObjectList, hori:Int )
-		If Self.Parent.Parent Then
-			If hori Then
-				Self.Parent.SetMinSize( ..
-					Self.Parent.Parent.GetInnerSize().x, ..
-					Self.Parent.GetMinSize().y )
-			Else
-				Self.Parent.SetMinSize( ..
-					Self.Parent.GetMinSize().x, ..
-					Self.Parent.Parent.GetInnerSize().y )
-			EndIf
-		EndIf
 	EndMethod
 	
 	Method ResizeChildren( children:TObjectList, hori:Int )
@@ -23,25 +11,25 @@ Type TLayoutStyleStackBase Extends TLayoutStyle
 		For Local g:TLayoutGadget = EachIn children
 			If g.GetGrow() Then
 				If hori Then
-					g.SetSize( ..
-						Max( g.GetMinSize().x, sizeFree.x / Self.GetGrowingChildrenCount() ), ..
-						Max( 0, Self.GetInnerSize().y ) )
+					g.SetOuterSize( ..
+						Max( g.GetMinOuterSize().x, sizeFree.x / Self.GetGrowingChildrenCount() ), ..
+						Max( g.GetMinOuterSize().y, Self.GetInnerSize().y ) )
 				Else
-					g.SetSize( ..
-						Max( 0, Self.GetInnerSize().x ) ), ..
-						Max( g.GetMinSize().y, sizeFree.y / Self.GetGrowingChildrenCount() )
+					g.SetOuterSize( ..
+						Max( g.GetMinOuterSize().x, Self.GetInnerSize().x ), ..
+						Max( g.GetMinOuterSize().y, sizeFree.y / Self.GetGrowingChildrenCount() ) )
 				EndIf
 			Else
 				If hori Then
-					g.SetSize( g.GetMinSize().x, Max( 0, Min( Self.GetInnerSize().y, g.GetMinSize().y ) ) )
+					g.SetOuterSize( g.GetMinOuterSize().x, Self.GetInnerSize().y )
 				Else
-					g.SetSize( Max( 0, Min( Self.GetInnerSize().x, g.GetMinSize().x ) ), g.GetMinSize().y )
+					g.SetOuterSize( Self.GetInnerSize().x, g.GetMinOuterSize().y )
 				EndIf
 			EndIf
 		Next
 	EndMethod
 	
-	Method ResizeOversize( children:TObjectList, hori:Int )
+	Method ResizeOverflow( children:TObjectList, hori:Int )
 		Local totaOverflow:SVec2I = Self.GetChildrenOverflow()
 		Local childOverflow:Int
 		Local shrank:Int
@@ -61,14 +49,14 @@ Type TLayoutStyleStackBase Extends TLayoutStyle
 	EndMethod
 	
 	Method PositionChildren( children:TObjectList, hori:Int )
-		Local gX:Int
-		Local gY:Int
+		Local gX:Int = Self.Gadget.GetPadding().x
+		Local gY:Int = Self.Gadget.GetPadding().w
 		For Local g:TLayoutGadget = EachIn children
-			g.SetPosition( gX, gY )
+			g.SetOuterPosition( gX, gY )
 			If hori Then
-				gX:+g.GetOuterSize().x
+				gX:+g.GetOuterSize().x + Self.GetSpacingWidth()
 			Else
-				gY:+g.GetOuterSize().y
+				gY:+g.GetOuterSize().y + Self.GetSpacingHeight()
 			EndIf
 		Next
 	EndMethod

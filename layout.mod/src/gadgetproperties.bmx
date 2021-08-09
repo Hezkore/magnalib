@@ -1,8 +1,8 @@
 Import brl.reflection
 
-Import "tlayoutgadget.header.bmx"
+Import "tlayoutgadget.base.bmx"
 
-Function SetGadgetProperties( gadget:TLayoutGadget_Header, prop:Object[], overrideGadgetType:String = "" )
+Function SetGadgetProperties( gadget:TLayoutGadget_Base, prop:Object[], overrideGadgetType:String = "" )
 	If Not gadget Or prop.Length <= 0 Return
 	
 	Local id:TTypeId
@@ -48,7 +48,7 @@ Function SetGadgetProperties( gadget:TLayoutGadget_Header, prop:Object[], overri
 		fld = id.FindField( key )
 		
 		' Make sure the field is valid and not the same as value
-		If Not fld Or Not fld.HasMetaData( TLayoutGadget_Header.META_PROPERTY ) Then Continue
+		If Not fld Or Not fld.HasMetaData( TLayoutGadget_Base.META_PROPERTY ) Then Continue
 		If value = fld.Get( gadget ) Then Continue
 		
 		gadget.SetNeedsRefresh()
@@ -63,7 +63,7 @@ Function GetGadgetProperties:String[]( gadget:Object )
 	Local id:TTypeId = TTypeId.ForObject( gadget )
 	
 	For Local fld:TField = EachIn id.EnumFields()
-		If Not fld.HasMetaData( TLayoutGadget_Header.META_PROPERTY ) Then Continue
+		If Not fld.HasMetaData( TLayoutGadget_Base.META_PROPERTY ) Then Continue
 		result.AddLast( fld.Name() )
 	Next
 	

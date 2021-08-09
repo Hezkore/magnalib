@@ -10,6 +10,16 @@ Import brl.glmax2d
 Import brl.timerdefault
 Import brl.timer
 
+?win32
+	Import maxgui.win32maxguiex
+	Import maxgui.maxguitextareascintilla
+?linux
+	Import maxgui.gtk3maxgui
+	'Import maxgui.gtk3webkitgtk
+	Import maxgui.gtk3webkit2gtk
+	Import maxgui.maxguitextareascintilla
+?
+
 Global window:TGadget = CreateWindow( "MagnaLib Layout Editor", 0, 0, 640, 720, Desktop(), ..
 	WINDOW_CENTER | WINDOW_CLIENTCOORDS | WINDOW_TITLEBAR | WINDOW_RESIZABLE | WINDOW_STATUS )
 
@@ -30,14 +40,14 @@ SetGadgetText( textarea, """
 		button#save (text="save")
 		button#saveAs (text="save as")
 		(grow=1)
-		button#search ()
+		button#search (text="search")
 	}
 	#content (layout=stackHorizontal, grow=1) {
 		(width=200) {
 			//sidebar content here
 		}
-		(grow=1, colour=content, border=thin, padding=controlSpace) {
-			text(value=$content)
+		(grow=1, padding=10) {
+			button#(text="text field", grow=1)
 		}
 	}
 	#actions (layout=stackHorizontal) {
@@ -100,7 +110,7 @@ While WaitEvent()
 
 		Case EVENT_GADGETACTION
 			Select EventSource()
-				Case textarea updateCountdown = 10
+				Case textarea updateCountdown = 6
 			EndSelect
 			
 		Case EVENT_WINDOWCLOSE
@@ -114,35 +124,44 @@ Wend
 End
 
 Function UpdateStatus()
-	SetStatusText( window, "Layout generated in " + genTime + "ms~t~tDraw in " + drawTime + "ms " )
+	SetStatusText( window, "Layout generated in " + genTime + "ms~t~tDrawn in " + drawTime + "ms " )
 EndFunction
 
 Function DrawGenericGadgetItem( g:TLayoutGadget )
 	SetBlend( ALPHABLEND )
 	
+	' Outer outline
+	SetAlpha( 0.5 )
+	SetColor( 255, 138, 60 )
+	'DrawOutline( g.GetOuterPosition.x, g.GetOuterPosition.y, g.GetOuterSize.x, g.GetOuterSize.y  )
+	
 	' Area rectangle
-	SetAlpha( 0.15 )
+	SetAlpha( 0.2 )
 	Select g.GetTypeHash()
 		' Cache "Panel".Hash() ULong for even better performance
 		Case "Panel".Hash()
+			'SetAlpha( 0 )
 			SetColor( 166, 204, 255 )
 		Default
 			SetColor( 239, 201, 253 )
 	EndSelect
 	DrawRect( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y )
 	
+	' Inner outline
+	SetAlpha( 0.5 )
+	SetColor( 60, 255, 135 )
+	'DrawOutline( g.GetInnerPosition.x, g.GetInnerPosition.y, g.GetInnerSize.x, g.GetInnerSize.y  )
+	
 	' Outline
-	SetAlpha( 0.35 )
-	DrawLine( g.GetPosition.x, g.GetPosition.y, g.GetPosition.x + g.GetSize.x, g.GetPosition.y, False )
-	DrawLine( g.GetPosition.x + g.GetSize.x, g.GetPosition.y, g.GetPosition.x + g.GetSize.x, g.GetPosition.y + g.GetSize.y, False )
-	DrawLine( g.GetPosition.x + g.GetSize.x, g.GetPosition.y + g.GetSize.y, g.GetPosition.x, g.GetPosition.y + g.GetSize.y, False )
-	DrawLine( g.GetPosition.x, g.GetPosition.y + g.GetSize.y, g.GetPosition.x, g.GetPosition.y, False )
+	SetAlpha( 0.75 )
+	SetColor( 10, 10, 10 )
+	DrawOutline( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y  )
 	
 	' Text
 	If g.GetText() Then
 		SetViewport( g.GetInnerPosition().x, g.GetInnerPosition().y, g.GetInnerSize().x, g.GetInnerSize().y )
 		SetAlpha( 1 )
-		SetColor( 255, 255, 255 )
+		SetColor( 244, 245, 223 )
 		DrawText( g.GetText(), ..
 			g.GetPosition.x + g.GetSize.x / 2 - TextWidth( g.GetText() ) / 2,..
 			g.GetPosition.y + g.GetSize.y / 2 - TextHeight( g.GetText() ) / 2 )
@@ -153,4 +172,11 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	For Local cg:TLayoutGadget = EachIn g
 		DrawGenericGadgetItem( cg )
 	Next
+EndFunction
+
+Function DrawOutline( x:Int, y:Int, w:Int, h:Int )
+	DrawLine( x, y - 1, x + w, y - 1, False )
+	DrawLine( x + w, y, x + w, y + h, False )
+	DrawLine( x + w - 1, y + h, x - 1, y + h, False )
+	DrawLine( x - 1, y + h - 1, x - 1, y - 1, False )
 EndFunction

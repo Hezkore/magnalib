@@ -1,8 +1,8 @@
 Import brl.standardio
 Import brl.reflection
 
-Import "tlayoutgadget.header.bmx"
-Import "tlayoutstyle.header.bmx"
+Import "tlayoutgadget.base.bmx"
+Import "tlayoutstyle.base.bmx"
 Import "gadgetproperties.bmx"
 
 Rem
@@ -12,9 +12,9 @@ Has the following special properties:
 layout = [Stack/Wrap][Hori/Vert]
 size = x, y (if y is not defined then x will be used)
 EndRem
-Type TLayoutGadget Extends TLayoutGadget_Header
+Type TLayoutGadget Extends TLayoutGadget_Base
 	Private
-		Field _layoutStyle:TLayoutStyle_Header
+		Field _layoutStyle:TLayoutStyle_Base
 	Public
 	
 	Method _recalculateChildrenIfNeeded()
@@ -48,14 +48,14 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 			style = "TLayoutStyle" + TLayoutGadget.FALLBACK_STYLE
 			id = TTypeId.ForName( style )
 		EndIf
-		Self._layoutStyle = TLayoutStyle_Header( id.NewObject() )
-		Self._layoutStyle.Parent = Self
+		Self._layoutStyle = TLayoutStyle_Base( id.NewObject() )
+		Self._layoutStyle.Gadget = Self
 	EndMethod
 	
 	Rem
 	bbdoc:
 	EndRem
-	Method GetLayoutStyle:TLayoutStyle_Header()
+	Method GetLayoutStyle:TLayoutStyle_Base()
 		Return Self._layoutStyle
 	EndMethod
 	
@@ -96,14 +96,15 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 	Rem
 	bbdoc: Add a single child gadget
 	EndRem
-	Method AddGadget( gadget:Object )
+	Method AddGadget( gadget:TLayoutGadget )
 		If Not gadget Return
+		Local g:TLayoutGadget = TLayoutGadget( gadget )
 		Self.SetNeedsRefresh()
-		TLayoutGadget( gadget ).Parent = Self
-		Self.SetMinSize( ..
-			Max( Self.GetMinSize().x, TLayoutGadget( gadget ).GetMinSize().x ), ..
-			Max( Self.GetMinSize().y, TLayoutGadget( gadget ).GetMinSize().y ) )
-		Self.Children.AddLast( TLayoutGadget( gadget ) )
+		g.Parent = Self
+		Self.SetMinInnerSize( ..
+			Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
+			Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
+		Self.Children.AddLast( g )
 		Self._recalculateChildrenIfNeeded()
 	EndMethod
 	
@@ -116,9 +117,9 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 		
 		For Local g:TLayoutGadget = EachIn gadgets
 			g.Parent = Self
-			Self.SetMinSize( ..
-				Max( Self.GetMinSize().x, g.GetMinSize().x ), ..
-				Max( Self.GetMinSize().y, g.GetMinSize().y ) )
+			Self.SetMinInnerSize( ..
+				Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
+				Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
 			Self.Children.AddLast( g )
 		Next
 		
@@ -169,7 +170,7 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 				Return True
 				
 			Case "size"
-				Local xy:String[] = String( value ).ToLower().Split( " " )
+			Local xy:String[] = String( value ).ToLower().Split( " " )
 				If xy.Length > 0 Then
 					If xy.Length = 1 Then xy = xy[..2]; xy[1] = xy[0]
 					Self.SetMinSize( Int( xy[0].Trim() ), Int( xy[1].Trim() ) )
@@ -177,6 +178,58 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 				EndIf
 				Return True
 			
+			Case "margin","padding"
+				Local size:String[] = String( value ).ToLower().Split( " " )
+				If size.Length > 0 Then
+					Local top:Int, right:Int, bottom:Int, left:Int
+					If size.Length >= 4 Then
+						top = Int( size[0] )
+						right = Int( size[1] )
+						bottom = Int( size[2] )
+						left = Int( size[3] )
+					EndIf
+					If size.Length = 3 Then
+						top = Int( size[0] )
+						right = Int( size[1] )
+						bottom = Int( size[2] )
+						left = Int( size[1] )
+					EndIf
+					If size.Length = 2 Then
+						top = Int( size[0] )
+						right = Int( size[1] )
+						bottom = Int( size[0] )
+						left = Int( size[1] )
+					EndIf
+					If size.Length = 1 Then
+						top = Int( size[0] )
+						right = Int( size[0] )
+						bottom = Int( size[0] )
+						left = Int( size[0] )
+					EndIf
+					If key = "margin" Then
+						Self.SetMargin( New SVec4I( top, right, bottom, left ) )
+					Else
+						Self.SetPadding( New SVec4I( top, right, bottom, left ) )
+					EndIf
+				EndIf
+				Return True
+				
+			Case "spacing"
+			Local size:String[] = String( value ).ToLower().Split( " " )
+				If size.Length > 0 Then
+					Local width:Int, height:Int
+					If size.Length = 2 Then
+						width = Int( size[0] )
+						height = Int( size[1] )
+					EndIf
+					If size.Length = 1 Then
+						width = Int( size[0] )
+						height = Int( size[0] )
+					EndIf
+					Self.SetSpacing( New SVec2I( width, height ) )
+				EndIf
+				Return True
+				
 			Case "width"
 				Local v:Int = Int( String( value ).Trim() )
 				Self.SetMinSize( v, Self.GetMinSize().y )
@@ -186,9 +239,7 @@ Type TLayoutGadget Extends TLayoutGadget_Header
 				Local v:Int = Int( String( value ).Trim() )
 				Self.SetMinSize( Self.GetMinSize().x, v )
 				Return True
-			
 		EndSelect
-		
 		Return False
 	EndMethod
 EndType
