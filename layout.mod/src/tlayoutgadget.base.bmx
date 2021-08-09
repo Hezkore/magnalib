@@ -1,3 +1,4 @@
+Import brl.standardio
 Import brl.reflection
 Import brl.objectlist
 Import brl.vector
@@ -18,6 +19,7 @@ Type TLayoutGadget_Base Abstract
 		' Internal fields
 		Field _dirty:Int = True	' Needs to be recalculated
 		Field _minSize:SVec2I
+		Field _tmpMinSize:SVec2I = New SVec2I( -1, -1 )
 		Field _position:SVec2I
 		Field _enumIndex:UInt	' Child enumerator index
 		Field _cachedTypeHash:ULong
@@ -98,11 +100,11 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set the size of the gadget
 	EndRem
-	Method SetSize( width:Int, height:Int )
+	Method SetSize( width:Int, height:Int, refresh:Int = True )
 		If Self.Width <> width Or Self.Height <> height Then
 			Self.Width = width
 			Self.Height = height
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 	EndMethod
 	
@@ -117,10 +119,17 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set the minimum size of the gadget
 	EndRem
-	Method SetMinSize( width:Int, height:Int )
+	Method SetMinSize( width:Int, height:Int, refresh:Int = True )
 		If Self._minSize.x <> width Or Self._minSize.y <> height Then
 			Self._minSize = New SVec2I( width, height )
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
+		EndIf
+	EndMethod
+	
+	Method SetTmpMinSize( width:Int, height:Int, refresh:Int = True )
+		If Self._minSize.x <> width Or Self._minSize.y <> height Then
+			Self._tmpMinSize = New SVec2I( width, height )
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 	EndMethod
 	
@@ -129,6 +138,8 @@ Type TLayoutGadget_Base Abstract
 	EndRem
 	Method GetMinSize:SVec2I()
 		Self._recalculateChildrenIfNeeded()
+		If Self._tmpMinSize.x >= 0 Or Self._tmpMinSize.y >= 0 Then ..
+			Return Self._tmpMinSize
 		Return Self._minSize
 	EndMethod
 	
@@ -144,10 +155,10 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget current size with inner padding
 	EndRem
-	Method SetInnerSize( width:Int, height:Int )
+	Method SetInnerSize( width:Int, height:Int, refresh:Int = True )
 		Self.SetSize( ..
 			width + Self.GetPaddingWidth(), ..
-			height + Self.GetPaddingHeight() )
+			height + Self.GetPaddingHeight(), refresh )
 	EndMethod
 	
 	Rem
@@ -162,10 +173,19 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget minimum size with inner padding
 	EndRem
-	Method SetMinInnerSize( width:Int, height:Int )
+	Method SetMinInnerSize( width:Int, height:Int, refresh:Int = True )
 		Self.SetMinSize( ..
 			width + Self.GetPaddingWidth(), ..
-			height + Self.GetPaddingHeight() )
+			height + Self.GetPaddingHeight(), refresh )
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget minimum size with inner padding
+	EndRem
+	Method SetTmpMinInnerSize( width:Int, height:Int, refresh:Int = True )
+		Self.SetTmpMinSize( ..
+			width + Self.GetPaddingWidth(), ..
+			height + Self.GetPaddingHeight(), refresh )
 	EndMethod
 	
 	Rem
@@ -180,10 +200,10 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget current size with outer margin
 	EndRem
-	Method SetOuterSize( width:Int, height:Int )
+	Method SetOuterSize( width:Int, height:Int, refresh:Int = True )
 		Self.SetSize( ..
 			width - Self.GetMarginWidth(), ..
-			height - Self.GetMarginHeight() )
+			height - Self.GetMarginHeight(), refresh )
 	EndMethod
 	
 	Rem
@@ -198,10 +218,20 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget minimum size with outer margin
 	EndRem
-	Method SetMinOuterSize( width:Int, height:Int )
+	Method SetMinOuterSize( width:Int, height:Int, refresh:Int = True )
 		Self.SetMinSize( ..
 			width - Self.GetMarginWidth(), ..
-			height - Self.GetMarginHeight() )
+			height - Self.GetMarginHeight(), refresh )
+	EndMethod
+	
+	Method SetTmpMinOuterSize( width:Int, height:Int, refresh:Int = True )
+		Self.SetTmpMinSize( ..
+			width - Self.GetMarginWidth(), ..
+			height - Self.GetMarginHeight(), refresh )
+	EndMethod
+	
+	Method ResetTmpMinSize()
+		Self._tmpMinSize = New SVec2I( -1, -1 )
 	EndMethod
 	
 	Rem
@@ -308,25 +338,25 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget margin size
 	EndRem
-	Method SetMargin( value:SVec4I )
+	Method SetMargin( value:SVec4I, refresh:Int = True )
 		If Self.MarginTop <> value.x Then
 			Self.MarginTop = value.x
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.MarginRight <> value.y Then
 			Self.MarginRight = value.y
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.MarginBottom <> value.z Then
 			Self.MarginBottom = value.z
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.MarginLeft <> value.w Then
 			Self.MarginLeft = value.w
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 	EndMethod
 	
@@ -348,25 +378,25 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget padding size
 	EndRem
-	Method SetPadding( value:SVec4I )
+	Method SetPadding( value:SVec4I, refresh:Int = True )
 		If Self.PaddingTop <> value.x Then
 			Self.PaddingTop = value.x
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.PaddingRight <> value.y Then
 			Self.PaddingRight = value.y
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.PaddingBottom <> value.z Then
 			Self.PaddingBottom = value.z
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.PaddingLeft <> value.w Then
 			Self.PaddingLeft = value.w
-			Self.SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 	EndMethod
 	
@@ -394,23 +424,39 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget child spacing size
 	EndRem
-	Method SetSpacing( value:SVec2I )
+	Method SetSpacing( value:SVec2I, refresh:Int = True )
 		If Self.SpacingWidth <> value.x Then
 			Self.SpacingWidth = value.x
-			SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 		
 		If Self.SpacingHeight <> value.y Then
 			Self.SpacingHeight = value.y
-			SetNeedsRefresh()
+			If refresh Then Self.SetNeedsRefresh()
 		EndIf
 	EndMethod
+	
+	Rem
+	bbdoc: Refresh the current layout
+	EndRem
+	Method RefreshLayout() Abstract
 	
 	Rem
 	bbdoc: Set the gadget dirty flag
 	EndRem
 	Method SetNeedsRefresh( dirty:Int = True )
 		Self._dirty = dirty
+	EndMethod
+	
+	Rem
+	bbdoc: Set the gadget dirty flag for all parent gadgets
+	EndRem
+	Method SetParentsNeedsRefresh( dirty:Int = True )
+		Local pG:TLayoutGadget_Base = Self.Parent
+		While pG
+			pG.SetNeedsRefresh( dirty )
+			pG = pG.Parent
+		Wend
 	EndMethod
 	
 	Rem

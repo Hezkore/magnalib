@@ -21,16 +21,16 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 		If Self.GetNeedsRefresh() Then
 			Self.SetNeedsRefresh( False )
 			If Self.Children.Count() > 0 Then ' Is this a good idea?
-				For Local g:TLayoutGadget = EachIn Self
-					g.SetNeedsRefresh()
-				Next
+				'For Local g:TLayoutGadget = EachIn Self
+				'	g.SetNeedsRefresh()
+				'Next
 				' Use fallback style if no style defined
 				If Not Self._layoutStyle Then ..
 					Self.SetLayoutStyle( TLayoutGadget.FALLBACK_STYLE )
 				' Update style
 				Self._layoutStyle._cacheChildrenInfo()
 				Self._layoutStyle.RecalculateChildren( Self.Children )
-			EndIF
+				EndIf
 		EndIf
 	EndMethod
 	

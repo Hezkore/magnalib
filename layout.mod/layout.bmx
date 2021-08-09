@@ -13,6 +13,8 @@ Import "src/gadgets/button.bmx"
 ' Layouts
 Import "src/layouts/stackhorizontal.bmx"
 Import "src/layouts/stackvertical.bmx"
+Import "src/layouts/wraphorizontal.bmx"
+Import "src/layouts/wrapvertical.bmx"
 
 ' Script support
 Import "src/gadgetfromstring.bmx"

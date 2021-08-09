@@ -20,6 +20,8 @@ Type TLayoutStyleStackBase Extends TLayoutStyle
 	EndMethod
 	
 	Method ResizeChildren( children:TObjectList, hori:Int )
+		If Self.Gadget.GetInnerSize().x <= 0 And Self.Gadget.GetInnerSize().y <= 0 Return
+		
 		Local childMinSize:SVec2I = Self.GetChildrenMinSize()
 		Local sizeFree:Svec2I = Self.GetInnerSize() - childMinSize
 		For Local g:TLayoutGadget = EachIn children
@@ -44,6 +46,8 @@ Type TLayoutStyleStackBase Extends TLayoutStyle
 	EndMethod
 	
 	Method ResizeOverflow( children:TObjectList, hori:Int )
+		If Self.Gadget.GetInnerSize().x <= 0 And Self.Gadget.GetInnerSize().y <= 0 Return
+		
 		Local totaOverflow:SVec2I = Self.GetChildrenOverflow()
 		Local childOverflow:Int
 		Local shrank:Int
@@ -63,8 +67,10 @@ Type TLayoutStyleStackBase Extends TLayoutStyle
 	EndMethod
 	
 	Method PositionChildren( children:TObjectList, hori:Int )
-		Local gX:Int = Self.Gadget.GetPadding().x
-		Local gY:Int = Self.Gadget.GetPadding().w
+		If Self.Gadget.GetInnerSize().x <= 0 And Self.Gadget.GetInnerSize().y <= 0 Return
+		
+		Local gX:Int = Self.Gadget.GetPadding().w
+		Local gY:Int = Self.Gadget.GetPadding().x
 		For Local g:TLayoutGadget = EachIn children
 			g.SetOuterPosition( gX, gY )
 			If hori Then
