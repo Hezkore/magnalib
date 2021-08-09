@@ -96,7 +96,9 @@ Type TLayoutStyleWrapBase Extends TLayoutStyleStackBase
 				Self.realMinWidth, ..
 				(Self.realMinHeight + Self.GetSpacingHeight()) * wrapIndex, False )
 		Else
-			
+			Self.Gadget.SetTmpMinInnerSize( ..
+				(Self.realMinWidth + Self.GetSpacingWidth()) * wrapIndex, ..
+				Self.realMinHeight, False )
 		EndIf
 		
 		If Self.prevTmpMinWidth <> Self.realMinWidth Or Self.prevTmpMinHeight <> Self.realMinHeight Then
