@@ -40,7 +40,7 @@ SetGadgetText( textarea, """
 		button#save (text="save")
 		button#saveAs (text="save as")
 		(grow=1)
-		button#search (text="search")
+		button#search (text="search field", width=200)
 	}
 	#content (layout=stackHorizontal, grow=1) {
 		(width=200) {

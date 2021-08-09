@@ -101,9 +101,9 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 		Local g:TLayoutGadget = TLayoutGadget( gadget )
 		Self.SetNeedsRefresh()
 		g.Parent = Self
-		Self.SetMinInnerSize( ..
-			Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
-			Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
+		'Self.SetMinInnerSize( ..
+		'	Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
+		'	Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
 		Self.Children.AddLast( g )
 		Self._recalculateChildrenIfNeeded()
 	EndMethod
@@ -117,9 +117,9 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 		
 		For Local g:TLayoutGadget = EachIn gadgets
 			g.Parent = Self
-			Self.SetMinInnerSize( ..
-				Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
-				Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
+			'Self.SetMinInnerSize( ..
+			'	Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
+			'	Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
 			Self.Children.AddLast( g )
 		Next
 		

@@ -45,6 +45,8 @@ Type TLayoutStyle_Base Abstract
 			w:-g.GetOuterSize().x
 			h:-g.GetOuterSize().y
 		Next
+		w:-Self.GetSpacingWidth() * ( Self.Gadget.Children.Count() - 1 )
+		h:-Self.GetSpacingHeight() * ( Self.Gadget.Children.Count() - 1 )
 		Return New Svec2I( w * -1, h * -1 )
 	EndMethod
 	Method GetGrowingChildrenCount:Int()
@@ -53,10 +55,10 @@ Type TLayoutStyle_Base Abstract
 	Method ShrinkChild:SVec2I( child:TLayoutGadget_Base, shrinkX:Int, shrinkY:Int )
 		If Not child Then Return New SVec2I( 0, 0 )
 		Local oldSize:SVec2I = child.GetSize()
-		child.SetSize( ..
-			Max( 0, child.GetSize().x - shrinkX ), ..
-			Max( 0, child.GetSize().y - shrinkY ) )
-		Return oldSize - child.GetSize()
+		child.SetOuterSize( ..
+			Max( 0, child.GetOuterSize().x - shrinkX ), ..
+			Max( 0, child.GetOuterSize().y - shrinkY ) )
+		Return oldSize - child.GetOuterSize()
 	EndMethod
 	Method _getLargestChild:TLayoutGadget_Base( testX:Int, testY:Int )
 		Local largestChild:TLayoutGadget_Base

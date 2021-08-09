@@ -3,6 +3,20 @@ Import "../tlayoutstyle.bmx"
 
 Type TLayoutStyleStackBase Extends TLayoutStyle
 	Method ResizeToParent( children:TObjectList, hori:Int )
+		Local childMinSize:SVec2I = Self.GetChildrenMinSize()
+		Local w:Int
+		Local h:Int
+		For Local g:TLayoutGadget = EachIn children
+			If w < g.GetMinOuterSize().x Then w = g.GetMinOuterSize().x
+			If h < g.GetMinOuterSize().y Then h = g.GetMinOuterSize().y
+		Next
+		If hori Then
+			Self.Gadget.SetMinInnerSize( childMinSize.x, h )
+			Self.Gadget.SetInnerSize( Max( childMinSize.x, Self.Gadget.GetInnerSize().x), Max( h, Self.Gadget.GetInnerSize().y) )
+		Else
+			Self.Gadget.SetMinInnerSize( w, childMinSize.y )
+			Self.Gadget.SetInnerSize( Max( w, Self.Gadget.GetInnerSize().x), Max( childMinSize.y, Self.Gadget.GetInnerSize().y) )
+		EndIf
 	EndMethod
 	
 	Method ResizeChildren( children:TObjectList, hori:Int )
@@ -41,7 +55,7 @@ Type TLayoutStyleStackBase Extends TLayoutStyle
 				shrank = Self.ShrinkChild( Self.GetLargestYChild(), 0, 1 ).y
 			EndIf
 			If shrank Then
-				childOverflow:-shrank
+				childOverflow:+shrank
 			Else
 				Exit
 			EndIf
