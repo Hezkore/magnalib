@@ -128,6 +128,11 @@ Function UpdateStatus()
 EndFunction
 
 Function DrawGenericGadgetItem( g:TLayoutGadget )
+	' Store current viewport
+	' Can we use GetViewport with a struct instead?
+	Local viewportX:Int, viewportY:Int, viewportW:Int, viewportH:Int
+	GetViewport( viewportX, viewportY, viewportW, viewportH )
+	
 	SetBlend( ALPHABLEND )
 	
 	' Outer outline
@@ -145,7 +150,7 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 		Default
 			SetColor( 239, 201, 253 )
 	EndSelect
-	DrawRect( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y )
+	DrawRect( g.GetPosition().x, g.GetPosition().y, g.GetSize().x, g.GetSize().y )
 	
 	' Inner outline
 	SetAlpha( 0.5 )
@@ -159,19 +164,25 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	
 	' Text
 	If g.GetText() Then
-		SetViewport( g.GetInnerPosition().x, g.GetInnerPosition().y, g.GetInnerSize().x, g.GetInnerSize().y )
 		SetAlpha( 1 )
 		SetColor( 244, 245, 223 )
 		DrawText( g.GetText(), ..
 			g.GetPosition.x + g.GetSize.x / 2 - TextWidth( g.GetText() ) / 2,..
 			g.GetPosition.y + g.GetSize.y / 2 - TextHeight( g.GetText() ) / 2 )
-		SetViewport( 0, 0, ClientWidth( canvas ), ClientHeight( canvas ) )
 	EndIf
+	
+	' Limit viewport children
+	SetViewport( ..
+		g.GetInnerPosition().x, g.GetInnerPosition().y , ..
+		g.GetInnerSize().x, g.GetInnerSize().y )
 	
 	' Draw any potential children of this gadget
 	For Local cg:TLayoutGadget = EachIn g
 		DrawGenericGadgetItem( cg )
 	Next
+	
+	' Restore viewport
+	SetViewport( viewportX, viewportY, viewportW, viewportH )
 EndFunction
 
 Function DrawOutline( x:Int, y:Int, w:Int, h:Int )

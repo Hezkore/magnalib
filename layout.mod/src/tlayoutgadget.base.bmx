@@ -23,6 +23,7 @@ Type TLayoutGadget_Base Abstract
 		Field _position:SVec2I
 		Field _enumIndex:UInt	' Child enumerator index
 		Field _cachedTypeHash:ULong
+		Field _scroll:SVec2I
 		
 		' Default gadget properties
 		Field Text:String				{gadgetProperty}
@@ -40,17 +41,26 @@ Type TLayoutGadget_Base Abstract
 		Field PaddingBottom:Int = 3{gadgetProperty}
 		Field PaddingLeft:Int = 3	{gadgetProperty}
 		
-		Field BorderTop:Int			{gadgetProperty}
-		Field BorderRight:Int		{gadgetProperty}
-		Field BorderBottom:Int		{gadgetProperty}
-		Field BorderLeft:Int			{gadgetProperty}
-		
 		Field SpacingWidth:Int = 4 {gadgetProperty}
 		Field SpacingHeight:Int = 2{gadgetProperty}
 	Public
 	
 	Method _recalculateChildrenIfNeeded() Abstract
 	Method IterceptPropertyChange:Int( key:String, value:Object ) Abstract
+	
+	Rem
+	bbdoc: Get gadget scrolling
+	EndRem
+	Method GetScroll:SVec2I()
+		Return Self._scroll
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget scrolling
+	EndRem
+	Method SetScroll( scroll:SVec2I )
+		Self._scroll = scroll
+	EndMethod
 	
 	Rem
 	bbdoc: Get gadget type in hash format
@@ -261,8 +271,8 @@ Type TLayoutGadget_Base Abstract
 	Method GetPosition:SVec2I()
 		If Self.Parent Then ..
 			Return New SVec2I( ..
-				Self._position.x + Self.Parent.GetPosition().x,..
-				Self._position.y + Self.Parent.GetPosition().y )
+				Self._position.x + Self.Parent.GetPosition().x + Self.Parent._scroll.x,..
+				Self._position.y + Self.Parent.GetPosition().y + Self.Parent._scroll.y )
 		Return Self._position
 	EndMethod
 	
@@ -270,10 +280,10 @@ Type TLayoutGadget_Base Abstract
 	bbdoc: Get the inner position of the gadget
 	EndRem
 	Method GetInnerPosition:SVec2I()
-		If Self.Parent Then ..
-			Return New SVec2I( ..
-				Self._position.x + Self.Parent.GetPosition().x + Self.PaddingLeft, ..
-				Self._position.y + Self.Parent.GetPosition().y + Self.PaddingTop )
+		If Self.Parent Then
+			Return Self._position + Self.Parent.GetPosition() + ..
+				New SVec2I( Self.PaddingLeft, Self.PaddingTop ) + Self.Parent.GetScroll()
+		EndIf
 		Return Self._position + New SVec2I( Self.PaddingLeft, Self.PaddingTop )
 	EndMethod
 	
@@ -281,43 +291,11 @@ Type TLayoutGadget_Base Abstract
 	bbdoc: Get the outer position of the gadget
 	EndRem
 	Method GetOuterPosition:SVec2I()
-		If Self.Parent Then ..
-			Return New SVec2I( ..
-				Self._position.x + Self.Parent.GetPosition().x - Self.MarginLeft, ..
-				Self._position.y + Self.Parent.GetPosition().y - Self.MarginTop )
+		If Self.Parent Then
+			Return Self._position + Self.Parent.GetPosition() - ..
+				New SVec2I( Self.MarginLeft, Self.MarginTop ) + Self.Parent.GetScroll()
+		EndIf
 		Return Self._position - New SVec2I( Self.MarginLeft, Self.MarginTop )
-	EndMethod
-	
-	Rem
-	bbdoc: Get gadget border size
-	EndRem
-	Method GetBorder:SVec4I()
-		Return New SVec4I( Self.BorderTop, Self.BorderRight, Self.BorderBottom, Self.BorderLeft  )
-	EndMethod
-	
-	Rem
-	bbdoc: Set gadget border size
-	EndRem
-	Method SetBorder( value:SVec4I )
-		If Self.BorderTop <> value.x Then
-			Self.BorderTop = value.x
-			Self.SetNeedsRefresh()
-		EndIf
-		
-		If Self.BorderRight <> value.y Then
-			Self.BorderRight = value.y
-			Self.SetNeedsRefresh()
-		EndIf
-		
-		If Self.BorderBottom <> value.z Then
-			Self.BorderBottom = value.z
-			Self.SetNeedsRefresh()
-		EndIf
-		
-		If Self.BorderLeft <> value.w Then
-			Self.BorderLeft = value.w
-			Self.SetNeedsRefresh()
-		EndIf
 	EndMethod
 	
 	Rem
