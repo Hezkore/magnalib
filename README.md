@@ -12,7 +12,7 @@ MagnaLib helps you quickly get started with developing your next [BlitzMax NG](h
 * [magnalib.layout](/layout.mod) - Magna layout generator
 
 ## Installation
-Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magnalib.mod/` folder.
+Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magna.mod/` folder.
 
 If you instead use GitHub's "Download Zip"; remember that the default name is "magnalib-master"\
 _WHICH IS NOT CORRECT_!\
