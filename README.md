@@ -16,6 +16,6 @@ Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magnalib.mod/` fold
 
 If you instead use GitHub's "Download Zip"; remember that the default name is "magnalib-master"\
 _WHICH IS NOT CORRECT_!\
-Rename to `magnalib.mod` once extracted.
+Rename to `magna.mod` once extracted.
 
-The correct path for this readme file should be `/mod/magnalib.mod/README.md`
+The correct path for this readme file should be `/mod/magna.mod/README.md`

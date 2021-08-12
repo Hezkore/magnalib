@@ -37,7 +37,7 @@ Function DrawGenericGadget( g:TLayoutGadget )
 	
 	' Text
 	If g.GetText() Then
-		SetAlpha( 1 )
+		SetAlpha( 0.9 )
 		SetColor( 244, 245, 223 )
 		DrawText( g.GetText(), ..
 			g.GetPosition.x + g.GetSize.x / 2 - TextWidth( g.GetText() ) / 2,..

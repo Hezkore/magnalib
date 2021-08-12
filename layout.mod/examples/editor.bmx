@@ -1,6 +1,6 @@
 SuperStrict
 
-Framework magnalib.layout
+Framework magna.layout
 Import brl.eventqueue
 Import maxgui.drivers
 Import maxgui.proxygadgets
@@ -41,7 +41,7 @@ SetGadgetText( textarea, """
 		button#open (text="open")
 		button#save (text="save")
 		button#saveAs (text="save as")
-		button#(grow=1)
+		(grow=1)
 		button#search (text="search field", width=200)
 	}
 	#content (layout=stackHorizontal, grow=1) {

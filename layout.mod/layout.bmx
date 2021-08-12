@@ -24,7 +24,7 @@ rem
 	about:
 	Magna interface layout
 endrem
-Module magnalib.layout
+Module magna.layout
 
 ModuleInfo "Author: Rob C."
 ModuleInfo "License: MIT"

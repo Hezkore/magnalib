@@ -1,6 +1,6 @@
 SuperStrict
 
-Framework magnalib.layout
+Framework magna.layout
 Import brl.max2d
 Import brl.glmax2d
 
