@@ -3,6 +3,7 @@ Import "tlayoutgadget.base.bmx"
 Type TLayoutStyle_Base Abstract
 	Field Gadget:TLayoutGadget_Base
 	Private ' Cached child data
+		Field _noGrowChildrenMinSize:SVec2I
 		Field _allChildrenMinSize:SVec2I
 		Field _growingChildrenCount:Int
 	Public
@@ -19,23 +20,31 @@ Type TLayoutStyle_Base Abstract
 		Return Self.Gadget.GetMinOuterSize()
 	EndMethod
 	Method _cacheChildrenInfo()
-		Local w:Int
-		Local h:Int
+		Local allW:Int
+		Local allH:Int
+		Local noGrowW:Int
+		Local noGrowH:Int
 		Self._growingChildrenCount = 0
 		For Local g:TLayoutGadget_Base = EachIn Self.Gadget.Children
+			allW:+g.GetMinOuterSize().x
+			allH:+g.GetMinOuterSize().y
 			If g.GetGrow() Then
 				Self._growingChildrenCount:+1
 			Else
-				w:+g.GetMinOuterSize().x
-				h:+g.GetMinOuterSize().y
+				noGrowW:+g.GetMinOuterSize().x
+				noGrowH:+g.GetMinOuterSize().y
 			EndIf
 		Next
-		w:+Self.GetSpacingWidth() * ( Self.Gadget.Children.Count() - 1 )
-		h:+Self.GetSpacingHeight() * ( Self.Gadget.Children.Count() - 1 )
-		Self._allChildrenMinSize = New Svec2I( w, h )
+		allW:+Self.GetSpacingWidth() * ( Self.Gadget.Children.Count() - 1 )
+		allH:+Self.GetSpacingHeight() * ( Self.Gadget.Children.Count() - 1 )
+		noGrowW:+Self.GetSpacingWidth() * ( Self.Gadget.Children.Count() - 1 )
+		noGrowH:+Self.GetSpacingHeight() * ( Self.Gadget.Children.Count() - 1 )
+		Self._allChildrenMinSize = New Svec2I( allW, allH )
+		Self._noGrowChildrenMinSize = New Svec2I( noGrowW, noGrowH )
 	EndMethod
 	Method RecalculateChildren( children:TObjectList ) Abstract
-	Method GetChildrenMinSize:SVec2I()
+	Method GetChildrenMinSize:SVec2I( noGrow:Int = True )
+		If noGrow Then Return Self._noGrowChildrenMinSize
 		Return Self._allChildrenMinSize
 	EndMethod
 	Method GetChildrenOverflow:SVec2I()

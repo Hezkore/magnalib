@@ -39,8 +39,8 @@ Type TLayoutGadget_Base Abstract
 		Field PaddingBottom:Int = 3{gadgetProperty}
 		Field PaddingLeft:Int = 3	{gadgetProperty}
 		
-		Field SpacingWidth:Int = 4 {gadgetProperty}
-		Field SpacingHeight:Int = 2{gadgetProperty}
+		Field SpacingWidth:Int = 3 {gadgetProperty}
+		Field SpacingHeight:Int = 3{gadgetProperty}
 	Public
 	
 	Method _recalculateChildrenIfNeeded() Abstract
@@ -123,6 +123,8 @@ Type TLayoutGadget_Base Abstract
 	bbdoc: Set the size of the gadget
 	EndRem
 	Method SetSize( width:Int, height:Int, refresh:Int = True )
+		If width < Self.GetMinSize().x Then width = Self.GetMinSize().x
+		If height < Self.GetMinSize().y Then height = Self.GetMinSize().y
 		If Self.Width <> width Or Self.Height <> height Then
 			Self.Width = width
 			Self.Height = height

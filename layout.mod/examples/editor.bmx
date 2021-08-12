@@ -96,7 +96,7 @@ While WaitEvent()
 			For Local g:TLayoutGadget = EachIn myLayout
 				g.SetPosition( posX, 0 )
 				g.SetSize( ClientWidth( canvas ) / myLayout.Length, ClientHeight( canvas ) )
-				DrawGenericGadgetItem( g )
+				DrawGenericGadget( g )
 				posX:+g.GetOuterSize().x
 			Next
 			
@@ -127,7 +127,7 @@ Function UpdateStatus()
 	SetStatusText( window, "Layout generated in " + genTime + "ms~t~tDrawn in " + drawTime + "ms " )
 EndFunction
 
-Function DrawGenericGadgetItem( g:TLayoutGadget )
+Function DrawGenericGadget( g:TLayoutGadget )
 	' Store current viewport
 	' Can we use GetViewport with a struct instead?
 	Local viewportX:Int, viewportY:Int, viewportW:Int, viewportH:Int
@@ -177,8 +177,8 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 		g.GetInnerSize().x, g.GetInnerSize().y )
 	
 	' Draw any potential children of this gadget
-	For Local cg:TLayoutGadget = EachIn g
-		DrawGenericGadgetItem( cg )
+	For Local cG:TLayoutGadget = EachIn g
+		DrawGenericGadget( cG )
 	Next
 	
 	' Restore viewport

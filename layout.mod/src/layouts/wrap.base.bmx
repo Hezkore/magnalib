@@ -62,7 +62,7 @@ Type TLayoutStyleWrapBase Extends TLayoutStyleStackBase
 			gH = g.GetMinOuterSize().y
 			
 			If hori Then
-				If gX + gW > Self.Gadget.GetInnerSize().x Then
+				If gadgetIndex > 0 And gX + gW > Self.Gadget.GetInnerSize().x Then
 					gX = Self.Gadget.GetPadding().w
 					wrapIndex:+1
 				EndIf
@@ -70,7 +70,7 @@ Type TLayoutStyleWrapBase Extends TLayoutStyleStackBase
 				If Not g.GetGrow() Then ..
 					Self.freeSpaceAtWrapIndex[wrapIndex]:-g.GetMinOuterSize().x + Self.Gadget.GetSpacingWidth()
 			Else
-				If gY + gH > Self.Gadget.GetInnerSize().y Then
+				If gadgetIndex > 0 And gY + gH > Self.Gadget.GetInnerSize().y Then
 					gY = Self.Gadget.GetPadding().x
 					wrapIndex:+1
 				EndIf
@@ -101,12 +101,9 @@ Type TLayoutStyleWrapBase Extends TLayoutStyleStackBase
 				Self.realMinHeight, False )
 		EndIf
 		
+		' Notify our changed size
 		If Self.prevTmpMinWidth <> Self.realMinWidth Or Self.prevTmpMinHeight <> Self.realMinHeight Then
-			Local pG:TLayoutGadget_Base = Self.Gadget.Parent
-			While pG
-				pG.RefreshLayout()
-				pG = pG.Parent
-			Wend
+			Self.Gadget.SetParentsNeedsRefresh( True )
 		EndIf
 	EndMethod
 	

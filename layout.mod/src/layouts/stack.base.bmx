@@ -3,7 +3,7 @@ Import "../tlayoutstyle.bmx"
 
 Type TLayoutStyleStackBase Extends TLayoutStyle
 	Method ResizeToParent( children:TObjectList, hori:Int )
-		Local childMinSize:SVec2I = Self.GetChildrenMinSize()
+		Local childMinSize:SVec2I = Self.GetChildrenMinSize( False )
 		Local w:Int
 		Local h:Int
 		For Local g:TLayoutGadget = EachIn children

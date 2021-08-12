@@ -1,14 +1,13 @@
 SuperStrict
 
 Framework magnalib.layout
-Import brl.standardio
 Import brl.max2d
 Import brl.glmax2d
 
-' Example layout
+' Create our simple layout
 Local myLayout:TLayoutPanel = New TLayoutPanel( "main", 320, 240, "stackVertical" )
 myLayout.AddGadget( New TLayoutPanel( "titlebar", "stackHorizontal" ) )
-myLayout.LastGadget().AddGadget( New TLayoutPanel( "title",, True ) ).SetText("My litte layout")
+myLayout.LastGadget().AddGadget( New TLayoutPanel( "title",, True ) ).SetText( "My litte layout" )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "minimize", "_", 18, 18 ) )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "close", "x", 18, 18 ) )
 
@@ -20,13 +19,16 @@ myLayout.LastGadget().AddGadget( New TLayoutButton( "button4", "Blah",, 18 ) )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "button5", "Help",, 18 ) )
 
 myLayout.AddGadget( New TLayoutPanel( "main", "stackHorizontal", True ) )
-myLayout.LastGadget().AddGadget( New TLayoutPanel( "area",, True ) ).SetMinSize( 160, 100 )
+myLayout.LastGadget().AddGadget( New TLayoutPanel( "area",, True ) )
 
 myLayout.AddGadget( New TLayoutPanel( "buttonrow" ) )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "abort", "Abort" ) )
 myLayout.LastGadget().AddGadget( New TLayoutPanel( "expand",, True ) )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "apply", "Apply" ) )
 
+myLayout.SetPosition( 64, 64 )
+
+' Create a Max2D graphics window
 Graphics( 640, 480 )
 While Not AppTerminate() And Not KeyDown(KEY_ESCAPE)
 	Cls()
@@ -37,19 +39,24 @@ While Not AppTerminate() And Not KeyDown(KEY_ESCAPE)
 	EndIf
 	
 	' Resize with right mouse button
-	If MouseDown( 2 ) Then
+	If MouseHit( 2 ) Then
 		myLayout.SetSize( ..
 			MouseX() - myLayout.GetPosition().x, ..
 			MouseY() - myLayout.GetPosition().y )
 	EndIf
 	
+	' Draw info
+	DrawText( "Hold left mouse button to position", 2, 0 )
+	DrawText( "Hold right mouse button to resize", 2, 16 )
+	
 	' Draw the layout and all of its children
-	DrawGenericGadgetItem( myLayout )
+	DrawGenericGadget( myLayout )
 	
 	Flip( 1 )
 Wend
 
-Function DrawGenericGadgetItem( g:TLayoutGadget )
+' Helper function for drawing any generic layout gadget
+Function DrawGenericGadget( g:TLayoutGadget )
 	SetBlend( ALPHABLEND )
 	
 	' Area rectangle
@@ -82,8 +89,8 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	EndIf
 	
 	' Draw any potential children of this gadget
-	For Local cg:TLayoutGadget = EachIn g
-		DrawGenericGadgetItem( cg )
+	For Local cG:TLayoutGadget = EachIn g
+		DrawGenericGadget( cG )
 	Next
 EndFunction
 
