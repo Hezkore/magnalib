@@ -20,6 +20,8 @@ Import brl.timer
 	Import maxgui.maxguitextareascintilla
 ?
 
+Import "drawgenericgadget.bmx"
+
 Global window:TGadget = CreateWindow( "MagnaLib Layout Editor", 0, 0, 640, 720, Desktop(), ..
 	WINDOW_CENTER | WINDOW_CLIENTCOORDS | WINDOW_TITLEBAR | WINDOW_RESIZABLE | WINDOW_STATUS )
 
@@ -34,21 +36,19 @@ Global splitterPreview:TGadget =  SplitterPanel(splitter,SPLITPANEL_SIDEPANE)
 Global textarea:TGadget = CreateTextArea( 0, 0, ClientWidth(splitterText), ClientHeight(splitterText), splitterText )
 SetGadgetLayout( textarea, EDGE_ALIGNED, EDGE_ALIGNED, EDGE_ALIGNED, EDGE_ALIGNED )
 SetGadgetText( textarea, """
-#window (layout=stackVertical) {
+#window (layout=stackVertical, padding=4) {
 	#toolbar (layout=wrapHorizontal) {
 		button#open (text="open")
 		button#save (text="save")
 		button#saveAs (text="save as")
-		(grow=1)
+		button#(grow=1)
 		button#search (text="search field", width=200)
 	}
 	#content (layout=stackHorizontal, grow=1) {
-		(width=200) {
+		button#(width=200) {
 			//sidebar content here
 		}
-		(grow=1, padding=10) {
-			button#(text="text field", grow=1)
-		}
+		button#area (text="area", grow=1)
 	}
 	#actions (layout=stackHorizontal) {
 		button#cancel (text="Cancel")
@@ -61,7 +61,7 @@ SetGadgetText( textarea, """
 Global canvas:TGadget=CreateCanvas(0,0,ClientWidth( splitterPreview ),ClientHeight( splitterPreview ),splitterPreview)
 SetGadgetLayout( canvas, EDGE_ALIGNED, EDGE_ALIGNED, EDGE_ALIGNED, EDGE_ALIGNED )
 
-Global myLayout:TLayoutGadget[] = GadgetFromString( GadgetText( textarea ) )
+Global myLayout:TLayoutGadget[]' = GadgetFromString( GadgetText( textarea ) )
 
 ActivateGadget( textarea )
 
@@ -79,6 +79,9 @@ While WaitEvent()
 				genTime = MilliSecs()
 				SetStatusText( window, "Generating layout from script..." )
 				myLayout = GadgetFromString( GadgetText( textarea ) )
+				'For Local g:TLayoutGadget = EachIn myLayout
+				'	g.SetPadding( New SVec4I( 4, 4, 4, 4 ) )
+				'Next
 				genTime = MilliSecs() - genTime
 				UpdateStatus()
 				RedrawGadget( splitterPreview )
@@ -125,69 +128,4 @@ End
 
 Function UpdateStatus()
 	SetStatusText( window, "Layout generated in " + genTime + "ms~t~tDrawn in " + drawTime + "ms " )
-EndFunction
-
-Function DrawGenericGadget( g:TLayoutGadget )
-	' Store current viewport
-	' Can we use GetViewport with a struct instead?
-	Local viewportX:Int, viewportY:Int, viewportW:Int, viewportH:Int
-	GetViewport( viewportX, viewportY, viewportW, viewportH )
-	
-	SetBlend( ALPHABLEND )
-	
-	' Outer outline
-	'SetAlpha( 0.5 )
-	'SetColor( 255, 138, 60 )
-	'DrawOutline( g.GetOuterPosition.x, g.GetOuterPosition.y, g.GetOuterSize.x, g.GetOuterSize.y  )
-	
-	' Area rectangle
-	SetAlpha( 0.2 )
-	Select g.GetTypeHash()
-		' Cache "Panel".Hash() ULong for even better performance
-		Case "Panel".Hash()
-			'SetAlpha( 0 )
-			SetColor( 166, 204, 255 )
-		Default
-			SetColor( 239, 201, 253 )
-	EndSelect
-	DrawRect( g.GetPosition().x, g.GetPosition().y, g.GetSize().x, g.GetSize().y )
-	
-	' Inner outline
-	'SetAlpha( 0.5 )
-	'SetColor( 60, 255, 135 )
-	'DrawOutline( g.GetInnerPosition.x, g.GetInnerPosition.y, g.GetInnerSize.x, g.GetInnerSize.y  )
-	
-	' Outline
-	'SetAlpha( 0.75 )
-	'SetColor( 10, 10, 10 )
-	DrawOutline( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y  )
-	
-	' Text
-	If g.GetText() Then
-		SetAlpha( 1 )
-		SetColor( 244, 245, 223 )
-		DrawText( g.GetText(), ..
-			g.GetPosition.x + g.GetSize.x / 2 - TextWidth( g.GetText() ) / 2,..
-			g.GetPosition.y + g.GetSize.y / 2 - TextHeight( g.GetText() ) / 2 )
-	EndIf
-	
-	' Limit viewport children
-	SetViewport( ..
-		g.GetInnerPosition().x, g.GetInnerPosition().y , ..
-		g.GetInnerSize().x, g.GetInnerSize().y )
-	
-	' Draw any potential children of this gadget
-	For Local cG:TLayoutGadget = EachIn g
-		DrawGenericGadget( cG )
-	Next
-	
-	' Restore viewport
-	SetViewport( viewportX, viewportY, viewportW, viewportH )
-EndFunction
-
-Function DrawOutline( x:Int, y:Int, w:Int, h:Int )
-	DrawLine( x, y - 1, x + w, y - 1, False )
-	DrawLine( x + w, y, x + w, y + h, False )
-	DrawLine( x + w - 1, y + h, x - 1, y + h, False )
-	DrawLine( x - 1, y + h - 1, x - 1, y - 1, False )
 EndFunction

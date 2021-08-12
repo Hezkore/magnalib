@@ -64,7 +64,7 @@ Type TLayoutStyleWrapBase Extends TLayoutStyleStackBase
 			gH = g.GetMinOuterSize().y
 			
 			If hori Then
-				If gadgetIndex > 0 And gX + gW - Self.GetSpacingWidth() >= Self.Gadget.GetInnerSize().x Then
+				If gadgetIndex > 0 And gX + gW > Self.Gadget.GetInnerSize().x Then
 					gX = Self.Gadget.GetPadding().w
 					wrapIndex:+1
 				EndIf
@@ -72,7 +72,7 @@ Type TLayoutStyleWrapBase Extends TLayoutStyleStackBase
 				If Not g.GetGrow() Then ..
 					Self.freeSpaceAtWrapIndex[wrapIndex]:-gW + Self.Gadget.GetSpacingWidth()
 			Else
-				If gadgetIndex > 0 And gY + gH - Self.GetSpacingHeight() >= Self.Gadget.GetInnerSize().y Then
+				If gadgetIndex > 0 And gY + gH > Self.Gadget.GetInnerSize().y Then
 					gY = Self.Gadget.GetPadding().x
 					wrapIndex:+1
 				EndIf

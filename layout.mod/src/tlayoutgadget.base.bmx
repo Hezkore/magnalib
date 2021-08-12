@@ -7,7 +7,7 @@ Type TLayoutGadget_Base Abstract
 	' CONST
 	Const META_PROPERTY:String = "gadgetProperty"
 	Const FALLBACK_STYLE:String = "StackHorizontal"
-	Const FALLBACK_GADGET:String = "Panel"
+	Const FALLBACK_GADGET:String = "Container"
 	
 	Field Children:TObjectList = New TObjectList
 	Field Parent:TLayoutGadget_Base
@@ -29,20 +29,21 @@ Type TLayoutGadget_Base Abstract
 		Field Width:Int				{gadgetProperty}
 		Field Height:Int				{gadgetProperty}
 		
-		Field MarginTop:Int = 1		{gadgetProperty}
-		Field MarginRight:Int = 1	{gadgetProperty}
-		Field MarginBottom:Int = 1	{gadgetProperty}
-		Field MarginLeft:Int = 1	{gadgetProperty}
+		Field MarginTop:Int = 0		{gadgetProperty}
+		Field MarginRight:Int = 0	{gadgetProperty}
+		Field MarginBottom:Int = 0	{gadgetProperty}
+		Field MarginLeft:Int = 0	{gadgetProperty}
 		
-		Field PaddingTop:Int = 3	{gadgetProperty}
-		Field PaddingRight:Int = 3	{gadgetProperty}
-		Field PaddingBottom:Int = 3{gadgetProperty}
-		Field PaddingLeft:Int = 3	{gadgetProperty}
+		Field PaddingTop:Int = 1	{gadgetProperty}
+		Field PaddingRight:Int = 1	{gadgetProperty}
+		Field PaddingBottom:Int = 1{gadgetProperty}
+		Field PaddingLeft:Int = 1	{gadgetProperty}
 		
 		Field SpacingWidth:Int = 4 {gadgetProperty}
 		Field SpacingHeight:Int = 3{gadgetProperty}
 	Public
 	
+	Method Defaults() Abstract
 	Method _recalculateChildrenIfNeeded() Abstract
 	Method IterceptPropertyChange:Int( key:String, value:Object ) Abstract
 	

@@ -59,14 +59,6 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 		Return Self._layoutStyle
 	EndMethod
 	
-	' New
-	' Remember that Self is always TLayoutGadget at this stage
-	' Hench why SetProperties cannot be used here
-	Method New( id:String = "", minWidth:Int = 0, minHeight:Int = 0 )
-		Self.SetId( id )
-		Self.SetMinSize( minWidth, minHeight )
-	EndMethod
-	
 	Rem
 	bbdoc: Set fields with the gadgetProperty meta data
 	about: Example SetProperties( ["key", value, "key2", value2] )

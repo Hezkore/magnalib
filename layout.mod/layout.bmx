@@ -7,7 +7,7 @@ Import brl.reflection
 Import brl.vector
 
 ' Gadgets
-Import "src/gadgets/panel.bmx"
+Import "src/gadgets/container.bmx"
 Import "src/gadgets/button.bmx"
 
 ' Layouts
