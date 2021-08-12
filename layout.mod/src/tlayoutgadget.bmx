@@ -30,7 +30,7 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 				' Update style
 				Self._layoutStyle._cacheChildrenInfo()
 				Self._layoutStyle.RecalculateChildren( Self.Children )
-				EndIf
+			EndIf
 		EndIf
 	EndMethod
 	
@@ -63,7 +63,7 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 	' Remember that Self is always TLayoutGadget at this stage
 	' Hench why SetProperties cannot be used here
 	Method New( id:String = "", minWidth:Int = 0, minHeight:Int = 0 )
-		Self.Id = id
+		Self.SetId( id )
 		Self.SetMinSize( minWidth, minHeight )
 	EndMethod
 	
@@ -96,16 +96,13 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 	Rem
 	bbdoc: Add a single child gadget
 	EndRem
-	Method AddGadget( gadget:TLayoutGadget )
+	Method AddGadget:TLayoutGadget( gadget:TLayoutGadget )
 		If Not gadget Return
-		Local g:TLayoutGadget = TLayoutGadget( gadget )
 		Self.SetNeedsRefresh()
-		g.Parent = Self
-		'Self.SetMinInnerSize( ..
-		'	Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
-		'	Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
-		Self.Children.AddLast( g )
+		gadget.Parent = Self
+		Self.Children.AddLast( gadget )
 		Self._recalculateChildrenIfNeeded()
+		Return gadget
 	EndMethod
 	
 	Rem
@@ -117,9 +114,6 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 		
 		For Local g:TLayoutGadget = EachIn gadgets
 			g.Parent = Self
-			'Self.SetMinInnerSize( ..
-			'	Max( Self.GetMinInnerSize().x, g.GetMinOuterSize().x ), ..
-			'	Max( Self.GetMinInnerSize().y, g.GetMinOuterSize().y )  )
 			Self.Children.AddLast( g )
 		Next
 		

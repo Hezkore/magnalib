@@ -136,8 +136,8 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	SetBlend( ALPHABLEND )
 	
 	' Outer outline
-	SetAlpha( 0.5 )
-	SetColor( 255, 138, 60 )
+	'SetAlpha( 0.5 )
+	'SetColor( 255, 138, 60 )
 	'DrawOutline( g.GetOuterPosition.x, g.GetOuterPosition.y, g.GetOuterSize.x, g.GetOuterSize.y  )
 	
 	' Area rectangle
@@ -153,13 +153,13 @@ Function DrawGenericGadgetItem( g:TLayoutGadget )
 	DrawRect( g.GetPosition().x, g.GetPosition().y, g.GetSize().x, g.GetSize().y )
 	
 	' Inner outline
-	SetAlpha( 0.5 )
-	SetColor( 60, 255, 135 )
+	'SetAlpha( 0.5 )
+	'SetColor( 60, 255, 135 )
 	'DrawOutline( g.GetInnerPosition.x, g.GetInnerPosition.y, g.GetInnerSize.x, g.GetInnerSize.y  )
 	
 	' Outline
-	SetAlpha( 0.75 )
-	SetColor( 10, 10, 10 )
+	'SetAlpha( 0.75 )
+	'SetColor( 10, 10, 10 )
 	DrawOutline( g.GetPosition.x, g.GetPosition.y, g.GetSize.x, g.GetSize.y  )
 	
 	' Text

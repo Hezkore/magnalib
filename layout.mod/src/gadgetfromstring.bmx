@@ -47,7 +47,7 @@ Function GadgetFromString:TLayoutGadget[]( str:String )
 					id = TTypeId.ForName( gadgetType )
 				EndIf
 				lastGadget = TLayoutGadget( id.NewObject() )
-				lastGadget.Id = gadgetId
+				lastGadget.SetId( gadgetId )
 				
 				SetGadgetProperties( lastGadget, gadgetProp.ToArray(), gadgetType )
 				token = Null

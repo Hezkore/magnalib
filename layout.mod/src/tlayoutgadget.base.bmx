@@ -9,9 +9,6 @@ Type TLayoutGadget_Base Abstract
 	Const FALLBACK_STYLE:String = "StackHorizontal"
 	Const FALLBACK_GADGET:String = "Panel"
 	
-	' Gadget identifier
-	Field Id:String
-	
 	Field Children:TObjectList = New TObjectList
 	Field Parent:TLayoutGadget_Base
 	
@@ -24,6 +21,7 @@ Type TLayoutGadget_Base Abstract
 		Field _enumIndex:UInt	' Child enumerator index
 		Field _cachedTypeHash:ULong
 		Field _scroll:SVec2I
+		Field _id:String ' Gadget identifier
 		
 		' Default gadget properties
 		Field Text:String				{gadgetProperty}
@@ -47,6 +45,20 @@ Type TLayoutGadget_Base Abstract
 	
 	Method _recalculateChildrenIfNeeded() Abstract
 	Method IterceptPropertyChange:Int( key:String, value:Object ) Abstract
+	
+	Rem
+	bbdoc: Get gadget identifier
+	EndRem
+	Method GetId:String()
+		Return Self._id
+	EndMethod
+	
+	Rem
+	bbdoc: Set gadget identifier
+	EndRem
+	Method SetId( id:String )
+		Self._Id = id
+	EndMethod
 	
 	Rem
 	bbdoc: Get gadget scrolling
@@ -83,11 +95,11 @@ Type TLayoutGadget_Base Abstract
 	Rem
 	bbdoc: Set gadget text
 	EndRem
-	Method SetText( value:Int )
-		If Not Self.Text = value Then
+	Method SetText( value:String )
+		'If Not Self.Text Or Not Self.Text.Hash() = value.Hash() Then
 			Self.Text = value
-			Self.SetNeedsRefresh()
-		EndIf
+			'Self.SetNeedsRefresh()
+		'EndIf
 	EndMethod
 	
 	Rem
