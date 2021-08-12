@@ -5,7 +5,7 @@ Import brl.max2d
 Import brl.glmax2d
 
 ' Create our simple layout
-Local myLayout:TLayoutPanel = New TLayoutPanel( "main", 320, 240, "stackVertical" )
+Local myLayout:TLayoutPanel = New TLayoutPanel( "main", 400, 340, "stackVertical" )
 myLayout.AddGadget( New TLayoutPanel( "titlebar", "stackHorizontal" ) )
 myLayout.LastGadget().AddGadget( New TLayoutPanel( "title",, True ) ).SetText( "My litte layout" )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "minimize", "_", 18, 18 ) )
@@ -27,6 +27,7 @@ myLayout.LastGadget().AddGadget( New TLayoutPanel( "expand",, True ) )
 myLayout.LastGadget().AddGadget( New TLayoutButton( "apply", "Apply" ) )
 
 myLayout.SetPosition( 64, 64 )
+myLayout.ResizeToAtLeastMin()
 
 ' Create a Max2D graphics window
 Graphics( 640, 480 )

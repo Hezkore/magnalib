@@ -22,7 +22,7 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 			Self.SetNeedsRefresh( False )
 			If Self.Children.Count() > 0 Then ' Is this a good idea?
 				'For Local g:TLayoutGadget = EachIn Self
-				'	g.SetNeedsRefresh()
+					'If g.GetNeedsRefresh() Then g.RefreshLayout()
 				'Next
 				' Use fallback style if no style defined
 				If Not Self._layoutStyle Then ..
@@ -91,33 +91,6 @@ Type TLayoutGadget Extends TLayoutGadget_Base
 		Local fld:TField = id.FindField( prop )
 		If fld.HasMetaData( TLayoutGadget.META_PROPERTY ) Then Return fld.Get( Self )
 		Return Null
-	EndMethod
-	
-	Rem
-	bbdoc: Add a single child gadget
-	EndRem
-	Method AddGadget:TLayoutGadget( gadget:TLayoutGadget )
-		If Not gadget Return
-		Self.SetNeedsRefresh()
-		gadget.Parent = Self
-		Self.Children.AddLast( gadget )
-		Self._recalculateChildrenIfNeeded()
-		Return gadget
-	EndMethod
-	
-	Rem
-	bbdoc: Add multiple child gadgets
-	EndRem
-	Method AddGadget( gadgets:Object[] )
-		If Not gadgets Or gadgets.Length <= 0 Return
-		Self.SetNeedsRefresh()
-		
-		For Local g:TLayoutGadget = EachIn gadgets
-			g.Parent = Self
-			Self.Children.AddLast( g )
-		Next
-		
-		Self._recalculateChildrenIfNeeded()
 	EndMethod
 	
 	Rem

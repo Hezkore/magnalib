@@ -39,7 +39,7 @@ Type TLayoutGadget_Base Abstract
 		Field PaddingBottom:Int = 3{gadgetProperty}
 		Field PaddingLeft:Int = 3	{gadgetProperty}
 		
-		Field SpacingWidth:Int = 3 {gadgetProperty}
+		Field SpacingWidth:Int = 4 {gadgetProperty}
 		Field SpacingHeight:Int = 3{gadgetProperty}
 	Public
 	
@@ -452,10 +452,55 @@ Type TLayoutGadget_Base Abstract
 	EndMethod
 	
 	Rem
+	bbdoc: Refresh all parent layouts
+	EndRem
+	Method RefreshParentsLayout()
+		Local pG:TLayoutGadget_Base = Self.Parent
+		While pG
+			pG.RefreshLayout()
+			pG = pG.Parent
+		Wend
+	EndMethod
+	
+	Rem
 	bbdoc: Get the gadget dirty state
 	EndRem
 	Method GetNeedsRefresh:Int()
 		Return Self._dirty
+	EndMethod
+	
+		Rem
+	bbdoc: Add a single child gadget
+	EndRem
+	Method AddGadget:TLayoutGadget_Base( gadget:TLayoutGadget_Base, refresh:Int = True )
+		If Not gadget Return
+		gadget.Parent = Self
+		Self.Children.AddLast( gadget )
+		If refresh Then
+			Self.SetNeedsRefresh()
+			Self.RefreshParentsLayout()
+		EndIf
+		Return gadget
+	EndMethod
+	
+	Rem
+	bbdoc: Add multiple child gadgets
+	EndRem
+	Method AddGadget( gadgets:Object[], refresh:Int = True )
+		If Not gadgets Or gadgets.Length <= 0 Return
+		For Local g:TLayoutGadget_Base = EachIn gadgets
+			Self.AddGadget( g, False)
+		Next
+		If refresh Then
+			Self.SetNeedsRefresh()
+			Self.RefreshParentsLayout()
+		EndIf
+	EndMethod
+	
+	Method ResizeToAtLeastMin()
+		Self.SetSize( ..
+			Max( Self.GetMinSize().x, Self.GetSize().x ), ..
+			Max( Self.GetMinSize().y, Self.GetSize().y ) )
 	EndMethod
 	
 	' Enumerator
