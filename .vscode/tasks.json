@@ -8,7 +8,7 @@
 			"fullcompile": false,
 			"debug": false,
 			"quick": false,
-			"apptype": "gui",
+			"apptype": "console",
 			"funcargcasting": "warning",
 			"problemMatcher": [
 				"$blitzmax",

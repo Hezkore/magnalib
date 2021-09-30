@@ -10,6 +10,7 @@ MagnaLib helps you quickly get started with developing your next [BlitzMax NG](h
 ## Modules
 * [magnalib.config](/config.mod) - Load Magna configuration files using reflection
 * [magnalib.layout](/layout.mod) - Magna layout generator
+* [magnalib.network](/network.mod) - Magna TCP server and client
 
 ## Installation
 Git clone to your [BlitzMax NG](https://blitzmax.org/) `/mod/magna.mod/` folder.
