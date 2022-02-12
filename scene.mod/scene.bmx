@@ -4,7 +4,7 @@ SuperStrict
 ?Threaded
 	Import brl.threads
 ?
-Import brl.collections
+Import brl.objectlist
 
 rem
 bbdoc: Game
@@ -17,108 +17,89 @@ ModuleInfo "Author: Rob C."
 ModuleInfo "License: MIT"
 ModuleInfo "Copyright: 2021 Rob C."
 
-?Threaded
-	Private
-		Function ThreadedOnUpdate:Object( data:Object )
-			
-			Local owner:TSceneManager = TSceneManager( data )
-			
-			While Not owner._wantsToStop
-				owner._currentUpdateTime = owner.currentScene.OnTime()
-				If owner.currentScene And TryLockMutex( owner._updateMutex ) Then
-					UnlockMutex( owner._updateMutex )
-					owner.currentScene.OnUpdate( (owner._currentUpdateTime - owner._lastUpdateTime) * owner.deltaMulti )
-					owner._lastUpdateTime = owner._currentUpdateTime
-				EndIf
-			Wend
-		EndFunction
-	Public
-?
-
 Type TSceneManager
 	
-	Field scenes:TStack<TSceneBase> = New TStack<TSceneBase>
-	Field currentScene:TSceneBase
-	Field deltaMulti:Double = 100.0
-	Field threadedUpdate:Int = True
-	
-	?Threaded
-		Field _updateThread:TThread
-		Field _updateMutex:TMutex
-	?
+	Field Scenes:TObjectList = New TObjectList
+	Field ActiveScenes:TObjectList = New TObjectList
 	Field _wantsToStop:Int
-	Field _lastUpdateTime:Double
-	Field _currentUpdateTime:Double
-	Field _lastRenderTime:Double
-	Field _currentRenderTime:Double
 	
 	Method New()
-		
-		Self._updateMutex = CreateMutex()
 	EndMethod
 	
-	Method OnUpdate()
-		
-		?Threaded
-			If Self.threadedUpdate Then
-				' Use crappy threading for updates
-				' Halts on rendering, but doesn't halt rendering
-				If Not Self._updateThread Then ..
-					Self._updateThread = CreateThread( ThreadedOnUpdate, Self )
-			Else If Self.currentScene Then
-		?
-			' Do a "normal" update
-			Self._currentUpdateTime = Self.currentScene.OnTime()
-			If Self.currentScene Then
-				Self.currentScene.OnUpdate( (Self._currentUpdateTime - self._lastUpdateTime) * Self.deltaMulti )
-			EndIf
-			Self._lastUpdateTime = Self._currentUpdateTime
-		?Threaded
-			EndIf
-		?
+	Method Update()
+		For Local s:TSceneBase = EachIn Self.ActiveScenes
+			s._currentUpdateTime = s.OnTime()
+			s.OnUpdate( (s._currentUpdateTime - s._lastUpdateTime) * s.DeltaMulti )
+			s._lastUpdateTime = s._currentUpdateTime
+		Next
 	EndMethod
 	
-	Method OnRender()
-		
-		Self._currentRenderTime = Self.currentScene.OnTime()
-		If Self.currentScene Then
-			?Threaded
-				LockMutex( Self._updateMutex )
-			?
-			Self.currentScene.OnRender( (Self._currentRenderTime - self._lastRenderTime) * Self.deltaMulti )
-			?Threaded
-				UnlockMutex( Self._updateMutex )
-			?
+	Method Render()
+		For Local s:TSceneBase = EachIn Self.ActiveScenes
+			s._currentRenderTime = s.OnTime()
+			s.OnRender( (s._currentRenderTime - s._lastRenderTime) * s.deltaMulti )
+			s._lastRenderTime = s._currentRenderTime
+		Next
+	EndMethod
+	
+	Method Register( name:String, scene:TSceneBase, active:Int = False )
+		scene._name = name
+		scene._searchName = name.ToLower()
+		Self.Scenes.AddLast( Scene )
+		If active Then Self.Activate( scene )
+	EndMethod
+	
+	Method Activate( name:String )
+		Local scene:TSceneBase = Self.GetFromName( name )
+		If Not Self.ActiveScenes.Contains( scene ) Then
+			Self.ActiveScenes.AddLast( scene )
 		EndIf
-		Self._lastRenderTime = Self._currentRenderTime
 	EndMethod
 	
-	Method Register( name:String, Scene:TSceneBase )
+	Method Activate( scene:TSceneBase )
+		If Not Self.ActiveScenes.Contains( scene ) Then
+			Self.ActiveScenes.AddLast( scene )
+		EndIf
+	EndMethod
+	
+	Method Deactivate( name:String )
+		Local scene:TSceneBase = Self.GetFromName( name )
+		Self.ActiveScenes.Remove( scene )
+	EndMethod
+	
+	Method Deactivate( scene:TSceneBase )
+		Self.ActiveScenes.Remove( scene )
+	EndMethod
+	
+	Method GetFromName:TSceneBase( name:String )
+		name = name.ToLower()
+		For Local s:TSceneBase = EachIn Self.Scenes
+			If s._searchName = name Then
+				Return s
+			EndIf
+		Next
 		
-		Scene.Name = name
-		
-		Self.Scenes.Push( Scene )
-		
-		If Not Self.CurrentScene Self.CurrentScene = Scene
+		Return Null
 	EndMethod
 	
 	Method Close()
 		Self._wantsToStop = True
-		?Threaded
-			If Self._updateThread Then
-				If Self._updateThread.Running() Then WaitThread( Self._updateThread )
-				Self._updateThread = null
-			EndIf
-		?
 	EndMethod
 EndType
 
 Type TSceneBase Abstract
 	
-	Field Name:String = "Unknown"
-	Field ZOrder:Int = 0
+	Field DeltaMulti:Double = 100.0
 	
-	Method OnTime:Double()				Abstract
+	Field _name:String = "Unknown"
+	Field _searchName:String = "unknown"
+	
+	Field _lastUpdateTime:Double
+	Field _currentUpdateTime:Double
+	Field _lastRenderTime:Double
+	Field _currentRenderTime:Double
+	
+	Method OnTime:Double()			Abstract
 	Method OnUpdate( delta:Double )	Abstract
 	Method OnRender( delta:Double )	Abstract
 EndType
