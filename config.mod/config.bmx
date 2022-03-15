@@ -39,11 +39,11 @@ Type TMagnaConfig Abstract
 	endrem
 	Function Load:Object( configType:String, file:String, path:String = "config\" )
 		
+		Local fullPath:String = AppDir + "\" + path + file + ".json"
 		Local json:String = "{}"
 		Local jconv:TJConv = New TJConvBuilder.WithBoxing().Build()
 		
-		If FileType( AppDir + "\" + path + file + ".json" ) ..
-			json = LoadString( AppDir + "\" + path + file + ".json" )
+		If FileType( fullPath ) Then json = LoadString( fullPath )
 		
 		Local configObject:Object = jconv.FromJson( json, configType )
 		TMagnaConfig( configObject ).configType = configType
@@ -61,17 +61,18 @@ Type TMagnaConfig Abstract
 		
 		If Not Self.configFile Return
 		
+		Local fullPath:String = AppDir + "\" + Self.configPath
 		Local jconv:TJConv = New TJConvBuilder.WithBoxing().WithIndent( 4 ).Build()
 		Local json:String = jconv.ToJson( Self )
 		If Not allowEmptyFile And json.Length <= 2 Return
 		
-		If FileType( AppDir + "\" + Self.configPath ) <> FILETYPE_DIR Then
-			If Not CreateDir( AppDir + "\" + Self.configPath, True ) Then
-				Throw( "Unable to create ~q" + AppDir + "\" + Self.configPath + "~q" )
+		If FileType( fullPath ) <> FILETYPE_DIR Then
+			If Not CreateDir( fullPath, True ) Then
+				Throw( "Unable to create ~q" + fullPath + "~q" )
 				Return
 			EndIf
 		EndIf
 		
-		SaveString( json, AppDir + "\" + Self.configPath + Self.configFile + ".json" )
+		SaveString( json, fullPath + Self.configFile + ".json" )
 	EndMethod
 EndType
