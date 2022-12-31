@@ -7,15 +7,20 @@ Import brl.socketstream
 Import "packet.bmx"
 
 ' Per user connection
+rem
+bbdoc: TNetworkConnection is a class that represents a connection to a client or server
+endrem
 Type TNetworkConnection
-	
+	' Internals
 	Field _socket:TSocket
 	Field _stream:TSocketStream
 	
 	Field _sessionID:Short
 	Field _identified:Byte
 	
-	' Holds anything you want
+	rem
+	bbdoc: Extra is a field that can be used to store any data you want
+	endrem
 	Field Extra:Object
 	
 	' For receiveing packets
@@ -29,25 +34,39 @@ Type TNetworkConnection
 	Field _includeFromUser:Byte = False
 	Field _canReceiveMorePackets:Byte
 	
+	rem
+	bbdoc: Creates a new network connection
+	endrem
 	Method New()
 		Self._sendQueue = New TObjectList
 	EndMethod
 	
+	rem
+	bbdoc: Returns true if the connection is identified
+	endrem
 	Method Connected:Byte()
 		If Not Self._stream Return False
 		If Not Self._socket Return False
 		Return Self._socket.Connected()
 	EndMethod
 	
+	rem
+	bbdoc: Queues a packet to be sent
+	about: The packet will be sent the next time the connection is updated
+	endrem
 	Method QueuePacket(packet:TNetworkPacket)
 		Self._sendQueue.AddLast(packet)
 	EndMethod
 	
+	rem
+	bbdoc: Set the function to be called when a packet is received
+	endrem
 	Method SetPacketFunctionPointer(func:TNetworkPacket(packet:TNetworkPacket))
 		
 		Self._packetFuncPointer = func
 	EndMethod
 	
+	' This method is called by the server or client when a packet is received
 	Method _triggerPacketFuncPointer(packet:TNetworkPacket)
 		
 		' Call the packet function pointer
@@ -59,12 +78,16 @@ Type TNetworkConnection
 		If returnPacket Then Self.QueuePacket(returnPacket)
 	EndMethod
 	
+	rem
+	bbdoc: Receives data from the connection
+	endrem
 	Method Update()
 		
 		' Receive data
 		Self._receiveAndSendData()
 	EndMethod
 	
+	' This method is called by the server or client to check for packets
 	Method _receiveAndSendData()
 		
 		' Send packets in the queue
@@ -178,6 +201,9 @@ Type TNetworkConnection
 		Wend
 	EndMethod
 	
+	rem
+	bbdoc: Close the connection
+	endrem
 	Method Close()
 		CloseSocket(Self._socket)
 	EndMethod
@@ -226,6 +252,9 @@ Type TNetworkConnection
 		Self._stream.WriteDouble(value)
 	EndMethod
 	
+	rem
+	bbdoc: Returns the amount of bytes available to read
+	endrem
 	Method ReadAvail:Int()
 		Return SocketReadAvail(Self._socket)
 	EndMethod

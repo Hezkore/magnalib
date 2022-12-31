@@ -6,7 +6,12 @@ Import brl.socketstream
 Import "packet.bmx"
 Import "connection.bmx"
 
+rem
+bbdoc: Represents a server instance
+about: Used to create a server and handle all the connections to it
+endrem
 Type TNetworkServer
+	' Internals
 	Field _clientsMax:Short
 	Field _clientCount:Short
 	
@@ -17,11 +22,18 @@ Type TNetworkServer
 	Field _connections:TNetworkConnection[]	'All our "players" are stored here
 	Field _hints:TAddrInfo
 	
+	rem
+	bbdoc: Creates a new server instance
+	about: This method creates a new server instance and returns it. The server is not started yet, you have to call the Start method to start it.
+	endrem
 	Method New(func:TNetworkPacket(packet:TNetworkPacket))
 		
 		Self.SetPacketFunctionPointer(func)
 	EndMethod
 	
+	rem
+	bbdoc: Returns True if the server is running, otherwise it returns False
+	endrem
 	Method Running:Byte()
 		If Not Self._socket Then Return False
 		' FIX: _socket.Connected() sometimes "randomly" returns False
@@ -30,11 +42,18 @@ Type TNetworkServer
 		Return True'Self._socket.Connected()
 	EndMethod
 	
+	rem
+	bbdoc: Set the function to be called when a packet is received
+	endrem
 	Method SetPacketFunctionPointer(func:TNetworkPacket(packet:TNetworkPacket))
 		
 		Self._packetFuncPointer = func
 	EndMethod
 	
+	rem
+	bbdoc: Starts the server
+	about: This method starts the server and returns True if it was successful, otherwise it returns False
+	endrem
 	Method Start:Byte(port:Int, clientsMax:Short = 16)
 		
 		' Sanity checks
@@ -73,6 +92,7 @@ Type TNetworkServer
 		CloseSocket(Self._socket)
 	EndMethod
 	
+	' This method is called by the server to check for disconnects
 	Method _checkDisconnects()
 		For Local c:TNetworkConnection = EachIn Self._connections
 			If Not c.Connected() Then
@@ -91,6 +111,8 @@ Type TNetworkServer
 		Next
 	EndMethod
 	
+	' This method is called by the server to check for new connections.
+	' It returns the new connection if there is one, otherwise it returns Null.
 	Method _checkNewConnections:TNetworkConnection()
 		
 		' Accept the new socket if there is one
@@ -123,6 +145,7 @@ Type TNetworkServer
 		EndIf
 	EndMethod
 	
+	' This method is called by the server to receive and send data to and from all clients
 	Method _receiveAndSendData()
 		
 		For Local c:TNetworkConnection = EachIn Self._connections
@@ -130,9 +153,14 @@ Type TNetworkServer
 		Next
 	EndMethod
 	
+	' This method is called by the server to handle internal packets
 	Method _internalPacket(packet:TNetworkPacket)
 	EndMethod
 	
+	rem
+	bbdoc: Updates the server
+	about: This method should be called every frame to update the server
+	endrem
 	Method Update()
 		
 		' Look for disconnects
@@ -145,6 +173,7 @@ Type TNetworkServer
 		Self._receiveAndSendData()
 	EndMethod
 	
+	' This method is called by the server to find the first empty slot in the connections array
 	Method _findFreeSessionID:Int()
 		
 		' Find the first empty space in our connections array
@@ -153,8 +182,25 @@ Type TNetworkServer
 		Next
 	EndMethod
 	
+	rem
+	bbdoc: Returns the connection with the specified session ID
+	endrem
 	Method GetConnection:TNetworkConnection(sessionID:Short)
 		If Self._connections[sessionID] Then ..
 			Return(Self._connections[sessionID])
+	EndMethod
+	
+	rem
+	bbdoc: Returns maximum number of clients
+	endrem
+	Method GetMaxClients:Short()
+		Return Self._clientsMax
+	EndMethod
+	
+	rem
+	bbdoc: Returns the number of clients currently connected
+	endrem
+	Method GetClientCount:Short()
+		Return Self._clientCount
 	EndMethod
 EndType
