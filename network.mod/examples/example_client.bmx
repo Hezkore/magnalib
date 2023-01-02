@@ -6,9 +6,9 @@ Import magna.network
 ' Packet definer
 Import "mypackets.bmx"
 
+' Create a new client instance and set the packet handler
 Local client:TNetworkClient = New TNetworkClient(OnNetPacket)
 
-Print TMyPackets.Hello
 
 Delay(500)
 If client.connect("127.0.0.1", 2472) Then
@@ -37,7 +37,7 @@ Function OnNetPacket:TNetworkPacket(packet:TNetworkPacket)
 			Print("#" + packet.FromClient() + " joined")
 			
 		Case TNetworkDefaultPackets.Left
-			Print("#" + packet.fromClient + " left")
+			Print("#" + packet.FromClient() + " left")
 			
 		Case TMyPackets.Hello
 			'Print("Hello from #" + packet.FromClient() + ": " + Packet.ReadString())
